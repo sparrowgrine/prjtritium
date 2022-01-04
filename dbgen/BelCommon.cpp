@@ -68,30 +68,30 @@ void tritium::BelCommon::lnk_to_wire(tritium::BelPin &src, tritium::Wire &wire) 
     wire.sources.emplace_back(&src);
 }
 
-tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::WireDirection dir, tritium::vec2 loc) {
+tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc) {
     switch(dir) {
-        case Wire::WireDirection::NORTH:
+        case Wire::Direction::NORTH:
             for(auto wire : wbl[loc].ytracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VL").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::SOUTH:
+        case Wire::Direction::SOUTH:
             for(auto wire : wbl[loc-vec2{0,1}].ytracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VL").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::EAST:
+        case Wire::Direction::EAST:
             for(auto wire : wbl[vec2{loc.x+1,loc.y-1}].xtracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HL").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::WEST:
+        case Wire::Direction::WEST:
             for(auto wire : wbl[loc-vec2{0,1}].xtracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HL").idx)
                     return *wire;
@@ -106,30 +106,30 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::WireDirectio
     return *new Wire(); //never gonna get here lol
 }
 
-tritium::Wire &tritium::BelCommon::out_swire_for_dir(tritium::Wire::WireDirection dir, tritium::vec2 loc) {
+tritium::Wire &tritium::BelCommon::out_swire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc) {
     switch(dir) {
-        case Wire::WireDirection::NORTH:
+        case Wire::Direction::NORTH:
             for(auto wire : wbl[loc].ytracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VS").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::SOUTH:
+        case Wire::Direction::SOUTH:
             for(auto wire : wbl[loc-vec2{0,1}].ytracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VS").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::EAST:
+        case Wire::Direction::EAST:
             for(auto wire : wbl[vec2{loc.x+1,loc.y-1}].xtracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HS").idx)
                     return *wire;
             }
             std::cerr << "ERR: Misformed routing!!!!" << std::endl;
             std::terminate();
-        case Wire::WireDirection::WEST:
+        case Wire::Direction::WEST:
             for(auto wire : wbl[loc-vec2{0,1}].xtracks) {
                 if(wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HS").idx)
                     return *wire;

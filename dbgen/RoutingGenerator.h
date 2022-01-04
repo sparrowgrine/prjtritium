@@ -10,15 +10,15 @@ namespace tritium {
         Device & dev;
     public:
         RoutingGenerator(Device& dev) : dev(dev) {}
+
         void generateRoutes();
-
         void generate_horz_lwires();
-
         void generate_vert_lwires();
-
         void generate_horz_swires();
-
         void generate_vert_swires();
+        void generate_semicol_clks();
+        void generate_global_clks();
+        Wire &mk_wire(const data::string& type, Wire::Direction dir, vec2 start, vec2 end, uint32_t track, uint32_t sbi);
     };
 }
 

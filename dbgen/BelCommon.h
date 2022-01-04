@@ -41,10 +41,10 @@ namespace tritium {
         static void lnk_wire_to(Wire& wire, BelPin& tgt);
         static void lnk_to_wire(Pip& src, Wire& wire);
         static void lnk_to_wire(BelPin& src, Wire& wire);
-        Wire& out_lwire_for_dir(Wire::WireDirection dir, vec2 loc);
-        inline Wire& out_lwire_for_dir(Wire::WireDirection dir) { return out_lwire_for_dir(dir,bel.start); }
-        Wire& out_swire_for_dir(Wire::WireDirection dir, vec2 loc);
-        inline Wire& out_swire_for_dir(Wire::WireDirection dir) { return out_swire_for_dir(dir,bel.start); }
+        Wire& out_lwire_for_dir(Wire::Direction dir, vec2 loc);
+        inline Wire& out_lwire_for_dir(Wire::Direction dir) { return out_lwire_for_dir(dir, bel.start); }
+        Wire& out_swire_for_dir(Wire::Direction dir, vec2 loc);
+        inline Wire& out_swire_for_dir(Wire::Direction dir) { return out_swire_for_dir(dir, bel.start); }
 
     };
 }

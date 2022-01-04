@@ -410,7 +410,7 @@ module EFXDBGen
     end
   end
 end
-ophgen = EFXDBGen::OPH::OPHGen.new('oph_77x162_b3_d1', 'C3', 78, 163)
+  ophgen = EFXDBGen::OPH::OPHGen.new('oph_77x162_b3_d1', 'C3', 78, 163)
 ophgen.generate_HL
 ophgen.generate_VL
 ophgen.generate_VS

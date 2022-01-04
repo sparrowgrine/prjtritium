@@ -83,7 +83,7 @@ namespace tritium {
         }
     };
     struct Wire {
-        enum class WireDirection : uint8_t {
+        enum class Direction : uint8_t {
             UNDEF = 0,
             NORTH = 1,
             SOUTH = 2,
@@ -97,7 +97,7 @@ namespace tritium {
             INTERBEL = 3
         };
         data::vector<uint32_t> name;
-        WireDirection dir;
+        Direction dir;
         WireType type;
         vec2 start;
         vec2 end;
@@ -126,8 +126,7 @@ namespace tritium {
         vec2 loc;
         data::ptr<Wire> wire;
     };
-    class Device {
-        friend class BelCommon;
+    struct Device {
         data::string name;
         data::string speedGrade;
         vec2 dims;
@@ -137,7 +136,6 @@ namespace tritium {
         data::vector<tritium::IdString> idstrings;
         data::hash_map<data::string, uint32_t> idstring_str_to_idx;
         data::vector<data::ptr<data::string>> idstring_idx_to_str;
-
     public:
         tritium::IdString id(data::string str) {
             auto it = idstring_str_to_idx.find(str);
