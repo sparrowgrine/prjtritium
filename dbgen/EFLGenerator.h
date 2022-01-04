@@ -4,15 +4,22 @@
 
 #ifndef LIBTRITIUM_EFLGENERATOR_H
 #define LIBTRITIUM_EFLGENERATOR_H
+
 #include "BelCommon.h"
-namespace tritium {
-    class EFLGenerator : public BelCommon {
-    public:
-        EFLGenerator(Device& dev, std::unordered_map<vec2,GridCell>& wbl, Bel& bel) : BelCommon(dev,wbl,bel) {}
-        void generate() override;
-    };
+
+namespace tritium
+{
+	class EFLGenerator : public BelCommon
+	{
+	public:
+		EFLGenerator(Device &dev,
+		             std::unordered_map<vec2, GridCell> &wbl,
+		             Bel &bel)
+		: BelCommon(dev, wbl, bel)
+		{
+		}
+		void generate() override;
+	};
 }
 
-
-
-#endif //LIBTRITIUM_EFLGENERATOR_H
+#endif // LIBTRITIUM_EFLGENERATOR_H
