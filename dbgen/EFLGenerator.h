@@ -18,6 +18,7 @@ namespace tritium
 		: BelCommon(dev, wbl, bel)
 		{
 		}
+
 		void generate() override;
 	};
 }

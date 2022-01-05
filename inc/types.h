@@ -166,20 +166,22 @@ namespace tritium
 	public:
 		tritium::IdString id(data::string str)
 		{
-			auto it = idstring_str_to_idx.find(str);
-			if (it != idstring_str_to_idx.end())
-			{
+			if (auto it = idstring_str_to_idx.find(str);
+			    it != idstring_str_to_idx.end())
 				return idstrings.at(it->second);
-			}
-			else
+
+			uint32_t strid = [&]() -> uint32_t
 			{
-				uint32_t strid = idstring_str_to_idx.size();
-				auto idstr     = IdString{{str}, strid};
-				idstring_idx_to_str.push_back(&idstr.str);
-				idstrings.emplace_back(idstr);
-				idstring_str_to_idx.insert({str, strid});
-				return idstr;
-			}
+				auto strid{idstring_str_to_idx.size()};
+				assert(strid <= UINT32_MAX);
+				return uint32_t(strid);
+			}();
+			IdString idstr{cista::indexed{str}, strid};
+			idstring_idx_to_str.push_back(&idstr.str);
+			idstrings.emplace_back(idstr);
+			idstring_str_to_idx.insert({str, strid});
+
+			return idstr;
 		}
 	};
 }

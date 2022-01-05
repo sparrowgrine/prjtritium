@@ -6,57 +6,69 @@
 
 void tritium::EFTGenerator::generate()
 {
-	auto l4i0     = mk_pin("L4_I0", BelPin::PinType::INPUT);
-	auto l4i1     = mk_pin("L4_I0", BelPin::PinType::INPUT);
-	auto l4i2     = mk_pin("L4_I0", BelPin::PinType::INPUT);
-	auto l4i3     = mk_pin("L4_I0", BelPin::PinType::INPUT);
-	auto i0       = mk_pin("FA_I0", BelPin::PinType::INPUT);
-	auto i1       = mk_pin("FA_I1", BelPin::PinType::INPUT);
-	auto ci       = mk_pin("FA_CI", BelPin::PinType::INPUT);
-	auto co       = mk_pin("FA_I0", BelPin::PinType::OUTPUT);
-	auto opin_lut = mk_pin("L4_O", BelPin::PinType::OUTPUT);
-	auto opin_add = mk_pin("FA_O", BelPin::PinType::OUTPUT);
-	auto opin_mux = mk_pip("OMUXCELL");
-	auto opin_ff  = mk_pin("FF_O", BelPin::PinType::OUTPUT);
-	lnk_termini(opin_lut, opin_mux);
-	lnk_termini(opin_add, opin_mux);
-	auto expmuxa = mk_pip("EXPMUXA");
-	auto expmuxb = mk_pip("EXPMUXA");
-	lnk_termini(l4i0, expmuxa);
-	lnk_termini(l4i2, expmuxa);
-	lnk_termini(l4i1, expmuxb);
-	lnk_termini(l4i3, expmuxb);
-	lnk_termini(expmuxa, i0);
-	lnk_termini(expmuxb, i1);
-	auto rtmuxns = mk_pip("RTMUXNS");
-	auto rtmuxew = mk_pip("RTMUXEW");
+	auto &l4i0{make_pin("L4_I0", BelPin::PinType::INPUT)};
+	auto &l4i1{make_pin("L4_I0", BelPin::PinType::INPUT)};
+	auto &l4i2{make_pin("L4_I0", BelPin::PinType::INPUT)};
+	auto &l4i3{make_pin("L4_I0", BelPin::PinType::INPUT)};
+
+	auto &i0{make_pin("FA_I0", BelPin::PinType::INPUT)};
+	auto &i1{make_pin("FA_I1", BelPin::PinType::INPUT)};
+	auto &ci{make_pin("FA_CI", BelPin::PinType::INPUT)};
+	auto &co{make_pin("FA_I0", BelPin::PinType::OUTPUT)};
+
+	auto &opin_lut{make_pin("L4_O", BelPin::PinType::OUTPUT)};
+	auto &opin_add{make_pin("FA_O", BelPin::PinType::OUTPUT)};
+	auto &opin_mux{make_pip("OMUXCELL")};
+	auto &opin_ff{make_pin("FF_O", BelPin::PinType::OUTPUT)};
+
+	link_termini(opin_lut, opin_mux);
+	link_termini(opin_add, opin_mux);
+
+	auto &expmuxa{make_pip("EXPMUXA")};
+	auto &expmuxb{make_pip("EXPMUXA")};
+
+	link_termini(l4i0, expmuxa);
+	link_termini(l4i2, expmuxa);
+	link_termini(l4i1, expmuxb);
+	link_termini(l4i3, expmuxb);
+	link_termini(expmuxa, i0);
+	link_termini(expmuxb, i1);
+
+	auto &rtmuxns{make_pip("RTMUXNS")};
+	auto &rtmuxew{make_pip("RTMUXEW")};
 	// inwires = ipins_lut.map(&:wires).flatten
 	// inwires.each do |iwire|
-	//   lnk_wire_to(iwire,rtmuxns)
-	//   lnk_wire_to(iwire,rtmuxew)
+	//   link_wire_to(iwire,rtmuxns)
+	//   link_wire_to(iwire,rtmuxew)
 	// end
-	auto omuxshort = mk_pip("OMUXSHORT");
-	lnk_termini(rtmuxew, omuxshort);
-	lnk_termini(rtmuxns, omuxshort);
-	lnk_termini(opin_mux, omuxshort);
-	lnk_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::NORTH));
-	lnk_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::EAST));
-	lnk_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::WEST));
-	lnk_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::SOUTH));
-	auto omuxnorth = mk_pip("OMUXNORTH");
-	lnk_termini(rtmuxns, omuxnorth);
-	lnk_termini(opin_mux, omuxnorth);
-	lnk_to_wire(omuxnorth, out_lwire_for_dir(Wire::Direction::NORTH));
-	auto omuxsouth = mk_pip("OMUXSOUTH");
-	lnk_termini(rtmuxns, omuxsouth);
-	lnk_termini(opin_mux, omuxsouth);
-	lnk_to_wire(omuxsouth, out_lwire_for_dir(Wire::Direction::SOUTH));
-	auto omuxwest = mk_pip("OMUXWEST");
-	lnk_termini(rtmuxns, omuxwest);
-	lnk_termini(opin_mux, omuxwest);
-	lnk_to_wire(omuxwest, out_lwire_for_dir(Wire::Direction::WEST));
-	auto omuxeast = mk_pip("OMUXEAST");
-	lnk_termini(rtmuxew, omuxeast);
-	lnk_termini(opin_mux, omuxeast);
-	lnk_to_wire(omuxeast, out_lwire_for_dir(Wire::Direction::EAST));
+	auto &omuxshort{make_pip("OMUXSHORT")};
+
+	link_termini(rtmuxew, omuxshort);
+	link_termini(rtmuxns, omuxshort);
+	link_termini(opin_mux, omuxshort);
+
+	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::NORTH));
+	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::EAST));
+	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::WEST));
+	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::SOUTH));
+
+	auto &omuxnorth{make_pip("OMUXNORTH")};
+	link_termini(rtmuxns, omuxnorth);
+	link_termini(opin_mux, omuxnorth);
+	link_to_wire(omuxnorth, out_lwire_for_dir(Wire::Direction::NORTH));
+
+	auto &omuxsouth{make_pip("OMUXSOUTH")};
+	link_termini(rtmuxns, omuxsouth);
+	link_termini(opin_mux, omuxsouth);
+	link_to_wire(omuxsouth, out_lwire_for_dir(Wire::Direction::SOUTH));
+
+	auto &omuxwest{make_pip("OMUXWEST")};
+	link_termini(rtmuxns, omuxwest);
+	link_termini(opin_mux, omuxwest);
+	link_to_wire(omuxwest, out_lwire_for_dir(Wire::Direction::WEST));
+
+	auto &omuxeast{make_pip("OMUXEAST")};
+	link_termini(rtmuxew, omuxeast);
+	link_termini(opin_mux, omuxeast);
+	link_to_wire(omuxeast, out_lwire_for_dir(Wire::Direction::EAST));
 }

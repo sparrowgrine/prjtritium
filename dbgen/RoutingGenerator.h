@@ -23,12 +23,13 @@ namespace tritium
 		void generate_vert_swires();
 		void generate_semicol_clks();
 		void generate_global_clks();
-		Wire &mk_wire(const data::string &type,
-		              Wire::Direction dir,
-		              vec2 start,
-		              vec2 end,
-		              uint32_t track,
-		              uint32_t sbi);
+
+		Wire &make_wire(const data::string &type,
+		                Wire::Direction dir,
+		                vec2 start,
+		                vec2 end,
+		                uint32_t track,
+		                uint32_t sbi);
 	};
 }
 

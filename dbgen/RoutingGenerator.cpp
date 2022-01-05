@@ -18,315 +18,483 @@ namespace tritium
 		generate_semicol_clks();
 	}
 
-	inline uint32_t next_ltrack(uint32_t track, int32_t incr = 1)
+	struct ltrack_index
 	{
-		if (incr < 0)
-		{
-			return next_ltrack(track, 2147483616 + incr);
-		}
-		return (((track - 8) + incr) % 40) + 8;
-	}
+		uint32_t track{0};
 
-	inline uint32_t next_strack(uint32_t track, int32_t incr = 1)
+		ltrack_index &next(int32_t incr = 1)
+		{
+			if (incr < 0) return next(2147483616 + incr);
+			track = (((track - 8) + incr) % 40) + 8;
+			return *this;
+		}
+
+		const uint32_t &operator*() const { return track; }
+	};
+
+	struct strack_index
 	{
-		if (incr < 0)
-		{
-			return next_strack(track, 2147483646 + incr);
-		}
-		return (track + incr) & 7;
-	}
+		uint32_t track{0};
 
-#define nextidx index = next_ltrack(index, 1)
-#define nextsbi pairIndex = next_ltrack(pairIndex, 1)
+		strack_index &next(int32_t incr = 1)
+		{
+			if (incr < 0) return next(2147483646 + incr);
+			track = (track + incr) & 7;
+			return *this;
+		}
+
+		const uint32_t &operator*() const { return track; }
+	};
 
 	void RoutingGenerator::generate_horz_lwires()
 	{
-		uint32_t index = 8;
+		ltrack_index index{8};
 		for (uint32_t y = 0; y < dev.dims.y - 1; y++)
 		{
-			uint32_t pairIndex = next_ltrack(8, -2 * y + 2);
+			ltrack_index pairIndex{8};
+			pairIndex.next(-2 * y + 2);
+
 			uint32_t firstwire = 20 - (y % 20);
+
 			for (uint32_t line = firstwire; line <= 20; line++)
 			{
-				mk_wire(
-				  "HL", Wire::Direction::EAST, {1, y}, {line, y}, nextidx, nextsbi);
-				mk_wire(
-				  "HL", Wire::Direction::WEST, {line, y}, {1, y}, nextidx, nextsbi);
+				make_wire("HL",
+				          Wire::Direction::EAST,
+				          {1, y},
+				          {line, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HL",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {1, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (uint32_t line = 1; line <= firstwire; line++)
 			{
-				mk_wire(
-				  "HL", Wire::Direction::EAST, {1, y}, {line, y}, nextidx, nextsbi);
-				mk_wire(
-				  "HL", Wire::Direction::WEST, {line, y}, {1, y}, nextidx, nextsbi);
+				make_wire("HL",
+				          Wire::Direction::EAST,
+				          {1, y},
+				          {line, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HL",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {1, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (int i = 0; i < y + 1; i++)
 			{
-				nextidx;
-				nextidx;
+				index.next();
+				index.next();
 			}
+
 			for (uint32_t line = 21; line <= dev.dims.x - 1; line++)
 			{
-				mk_wire(
-				  "HL", Wire::Direction::EAST, {line - 19, y}, {line, y}, nextidx, 10);
-				mk_wire(
-				  "HL", Wire::Direction::WEST, {line, y}, {line - 19, y}, nextidx, 11);
+				make_wire("HL",
+				          Wire::Direction::EAST,
+				          {line - 19, y},
+				          {line, y},
+				          *index.next(),
+				          10);
+
+				make_wire("HL",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {line - 19, y},
+				          *index.next(),
+				          11);
 			}
+
 			for (uint32_t line = dev.dims.x - 19; line <= dev.dims.x - 1; line++)
 			{
-				mk_wire("HL",
-				        Wire::Direction::EAST,
-				        {line, y},
-				        {dev.dims.x - 1, y},
-				        nextidx,
-				        10);
-				mk_wire("HL",
-				        Wire::Direction::WEST,
-				        {dev.dims.x - 1, y},
-				        {line, y},
-				        nextidx,
-				        11);
+				make_wire("HL",
+				          Wire::Direction::EAST,
+				          {line, y},
+				          {dev.dims.x - 1, y},
+				          *index.next(),
+				          10);
+
+				make_wire("HL",
+				          Wire::Direction::WEST,
+				          {dev.dims.x - 1, y},
+				          {line, y},
+				          *index.next(),
+				          11);
 			}
-			index     = 8;
-			pairIndex = next_ltrack(8, (48 - 2 * (y % 20)));
+
+			index.track     = 8;
+			pairIndex.track = 8;
+			pairIndex.next((48 - 2 * (y % 20)));
+
 			for (uint32_t i = 0; i < 20; i++)
 			{
-				mk_wire("HL",
-				        Wire::Direction::EAST,
-				        {dev.dims.x, y},
-				        {dev.dims.x, y},
-				        nextidx,
-				        nextsbi);
-				mk_wire("HL",
-				        Wire::Direction::WEST,
-				        {dev.dims.x, y},
-				        {dev.dims.x, y},
-				        nextidx,
-				        nextsbi);
+				make_wire("HL",
+				          Wire::Direction::EAST,
+				          {dev.dims.x, y},
+				          {dev.dims.x, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HL",
+				          Wire::Direction::WEST,
+				          {dev.dims.x, y},
+				          {dev.dims.x, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
 		}
 	}
 
 	void RoutingGenerator::generate_vert_lwires()
 	{
-		uint32_t index = 8;
+		ltrack_index index{8};
 		for (uint32_t x = 0; x < dev.dims.x; x++)
 		{
-			uint32_t pairIndex = next_ltrack(8, -2 * x + 2);
+			ltrack_index pairIndex{8};
+			pairIndex.next(-2 * x + 2);
 			uint32_t firstwire = 21 - (x % 20);
+
 			for (uint32_t line = firstwire; line <= 20; line++)
 			{
-				mk_wire(
-				  "VL", Wire::Direction::NORTH, {x, 1}, {x, line}, nextidx, nextsbi);
-				mk_wire(
-				  "VL", Wire::Direction::SOUTH, {x, line}, {x, 1}, nextidx, nextsbi);
+				make_wire("VL",
+				          Wire::Direction::NORTH,
+				          {x, 1},
+				          {x, line},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VL",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, 1},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (uint32_t line = 1; line <= firstwire; line++)
 			{
-				mk_wire(
-				  "VL", Wire::Direction::NORTH, {x, 1}, {x, line}, nextidx, nextsbi);
-				mk_wire(
-				  "VL", Wire::Direction::SOUTH, {x, line}, {x, 1}, nextidx, nextsbi);
+				make_wire("VL",
+				          Wire::Direction::NORTH,
+				          {x, 1},
+				          {x, line},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VL",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, 1},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (int i = 0; i < x; i++)
 			{
-				nextidx;
-				nextidx;
+				index.next();
+				index.next();
 			}
+
 			for (uint32_t line = 21; line <= dev.dims.y - 1; line++)
 			{
-				mk_wire(
-				  "VL", Wire::Direction::NORTH, {x, line - 19}, {x, line}, nextidx, 8);
-				mk_wire(
-				  "VL", Wire::Direction::SOUTH, {x, line}, {x, line - 19}, nextidx, 9);
+				make_wire("VL",
+				          Wire::Direction::NORTH,
+				          {x, line - 19},
+				          {x, line},
+				          *index.next(),
+				          8);
+
+				make_wire("VL",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, line - 19},
+				          *index.next(),
+				          9);
 			}
+
 			for (uint32_t line = dev.dims.y - 19; line <= dev.dims.y - 1; line++)
 			{
-				mk_wire("VL",
-				        Wire::Direction::NORTH,
-				        {x, line},
-				        {x, dev.dims.y - 1},
-				        nextidx,
-				        8);
-				mk_wire("VL",
-				        Wire::Direction::SOUTH,
-				        {x, dev.dims.y - 1},
-				        {x, line},
-				        nextidx,
-				        9);
+				make_wire("VL",
+				          Wire::Direction::NORTH,
+				          {x, line},
+				          {x, dev.dims.y - 1},
+				          *index.next(),
+				          8);
+
+				make_wire("VL",
+				          Wire::Direction::SOUTH,
+				          {x, dev.dims.y - 1},
+				          {x, line},
+				          *index.next(),
+				          9);
 			}
-			index     = 8;
-			pairIndex = next_ltrack(8, (48 - 2 * ((x + 2) % 20)));
+
+			index.track     = 8;
+			pairIndex.track = 8;
+			pairIndex.next(48 - 2 * ((x + 2) % 20));
+
 			for (uint32_t i = 0; i < 20; i++)
 			{
-				mk_wire(
-				  "VL", Wire::Direction::NORTH, {x, 0}, {x, 0}, nextidx, nextsbi);
-				mk_wire(
-				  "VL", Wire::Direction::SOUTH, {x, 0}, {x, 0}, nextidx, nextsbi);
+				make_wire("VL",
+				          Wire::Direction::NORTH,
+				          {x, 0},
+				          {x, 0},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VL",
+				          Wire::Direction::SOUTH,
+				          {x, 0},
+				          {x, 0},
+				          *index.next(),
+				          *pairIndex.next());
 			}
 		}
 	}
 
-#undef nextidx
-#undef nextsbi
-#define nextidx index = next_strack(index, 1)
-#define nextsbi pairIndex = next_strack(pairIndex, 1)
-
 	void RoutingGenerator::generate_horz_swires()
 	{
-		uint32_t index = 0;
+		strack_index index{0};
 		for (uint32_t y = 0; y < dev.dims.y - 1; y++)
 		{
-			uint32_t pairIndex = next_ltrack(8, -2 * y + 2);
+			strack_index pairIndex{0};
+			pairIndex.next(-2 * y + 2);
 			uint32_t firstwire = 4 - (y % 4);
+
 			for (uint32_t line = firstwire; line <= 4; line++)
 			{
-				mk_wire(
-				  "HS", Wire::Direction::EAST, {1, y}, {line, y}, nextidx, nextsbi);
-				mk_wire(
-				  "HS", Wire::Direction::WEST, {line, y}, {1, y}, nextidx, nextsbi);
+				make_wire("HS",
+				          Wire::Direction::EAST,
+				          {1, y},
+				          {line, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HS",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {1, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (uint32_t line = 1; line <= firstwire; line++)
 			{
-				mk_wire(
-				  "HS", Wire::Direction::EAST, {1, y}, {line, y}, nextidx, nextsbi);
-				mk_wire(
-				  "HS", Wire::Direction::WEST, {line, y}, {1, y}, nextidx, nextsbi);
+				make_wire("HS",
+				          Wire::Direction::EAST,
+				          {1, y},
+				          {line, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HS",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {1, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (int i = 0; i < y + 1; i++)
 			{
-				nextidx;
-				nextidx;
+				index.next();
+				index.next();
 			}
+
 			for (uint32_t line = 5; line <= dev.dims.x - 1; line++)
 			{
-				mk_wire(
-				  "HS", Wire::Direction::EAST, {line - 3, y}, {line, y}, nextidx, 2);
-				mk_wire(
-				  "HS", Wire::Direction::WEST, {line, y}, {line - 3, y}, nextidx, 3);
+				make_wire("HS",
+				          Wire::Direction::EAST,
+				          {line - 3, y},
+				          {line, y},
+				          *index.next(),
+				          2);
+
+				make_wire("HS",
+				          Wire::Direction::WEST,
+				          {line, y},
+				          {line - 3, y},
+				          *index.next(),
+				          3);
 			}
+
 			for (uint32_t line = dev.dims.x - 3; line <= dev.dims.x - 1; line++)
 			{
-				mk_wire("HS",
-				        Wire::Direction::EAST,
-				        {line, y},
-				        {dev.dims.x - 1, y},
-				        nextidx,
-				        2);
-				mk_wire("HS",
-				        Wire::Direction::WEST,
-				        {dev.dims.x - 1, y},
-				        {line, y},
-				        nextidx,
-				        3);
+				make_wire("HS",
+				          Wire::Direction::EAST,
+				          {line, y},
+				          {dev.dims.x - 1, y},
+				          *index.next(),
+				          2);
+
+				make_wire("HS",
+				          Wire::Direction::WEST,
+				          {dev.dims.x - 1, y},
+				          {line, y},
+				          *index.next(),
+				          3);
 			}
-			index     = 0;
-			pairIndex = next_ltrack(0, (8 - 2 * (y % 4)));
+
+			index.track     = 0;
+			pairIndex.track = 0;
+			pairIndex.next(8 - 2 * (y % 4));
+
 			for (uint32_t i = 0; i < 4; i++)
 			{
-				mk_wire("HS",
-				        Wire::Direction::EAST,
-				        {dev.dims.x, y},
-				        {dev.dims.x, y},
-				        nextidx,
-				        nextsbi);
-				mk_wire("HS",
-				        Wire::Direction::WEST,
-				        {dev.dims.x, y},
-				        {dev.dims.x, y},
-				        nextidx,
-				        nextsbi);
+				make_wire("HS",
+				          Wire::Direction::EAST,
+				          {dev.dims.x, y},
+				          {dev.dims.x, y},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("HS",
+				          Wire::Direction::WEST,
+				          {dev.dims.x, y},
+				          {dev.dims.x, y},
+				          *index.next(),
+				          *pairIndex.next());
 			}
 		}
 	}
 
 	void RoutingGenerator::generate_vert_swires()
 	{
-		uint32_t index = 0;
+		strack_index index{0};
 		for (uint32_t x = 0; x < dev.dims.x; x++)
 		{
-			uint32_t pairIndex = next_ltrack(0, -2 * x + 2);
+			strack_index pairIndex{0};
+			pairIndex.next(-2 * x + 2);
 			uint32_t firstwire = 5 - (x % 4);
+
 			for (uint32_t line = firstwire; line <= 4; line++)
 			{
-				mk_wire(
-				  "VS", Wire::Direction::NORTH, {x, 1}, {x, line}, nextidx, nextsbi);
-				mk_wire(
-				  "VS", Wire::Direction::SOUTH, {x, line}, {x, 1}, nextidx, nextsbi);
+				make_wire("VS",
+				          Wire::Direction::NORTH,
+				          {x, 1},
+				          {x, line},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VS",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, 1},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (uint32_t line = 1; line <= firstwire; line++)
 			{
-				mk_wire(
-				  "VS", Wire::Direction::NORTH, {x, 1}, {x, line}, nextidx, nextsbi);
-				mk_wire(
-				  "VS", Wire::Direction::SOUTH, {x, line}, {x, 1}, nextidx, nextsbi);
+				make_wire("VS",
+				          Wire::Direction::NORTH,
+				          {x, 1},
+				          {x, line},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VS",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, 1},
+				          *index.next(),
+				          *pairIndex.next());
 			}
+
 			for (int i = 0; i < x; i++)
 			{
-				nextidx;
-				nextidx;
+				index.next();
+				index.next();
 			}
+
 			for (uint32_t line = 21; line <= dev.dims.y - 1; line++)
 			{
-				mk_wire(
-				  "VS", Wire::Direction::NORTH, {x, line - 3}, {x, line}, nextidx, 0);
-				mk_wire(
-				  "VS", Wire::Direction::SOUTH, {x, line}, {x, line - 3}, nextidx, 1);
+				make_wire("VS",
+				          Wire::Direction::NORTH,
+				          {x, line - 3},
+				          {x, line},
+				          *index.next(),
+				          0);
+
+				make_wire("VS",
+				          Wire::Direction::SOUTH,
+				          {x, line},
+				          {x, line - 3},
+				          *index.next(),
+				          1);
 			}
+
 			for (uint32_t line = dev.dims.y - 3; line <= dev.dims.y - 1; line++)
 			{
-				mk_wire("VS",
-				        Wire::Direction::NORTH,
-				        {x, line},
-				        {x, dev.dims.y - 1},
-				        nextidx,
-				        0);
-				mk_wire("VS",
-				        Wire::Direction::SOUTH,
-				        {x, dev.dims.y - 1},
-				        {x, line},
-				        nextidx,
-				        1);
+				make_wire("VS",
+				          Wire::Direction::NORTH,
+				          {x, line},
+				          {x, dev.dims.y - 1},
+				          *index.next(),
+				          0);
+
+				make_wire("VS",
+				          Wire::Direction::SOUTH,
+				          {x, dev.dims.y - 1},
+				          {x, line},
+				          *index.next(),
+				          1);
 			}
-			index     = 0;
-			pairIndex = next_ltrack(0, (8 - 2 * ((x + 2) % 4)));
+
+			index.track     = 0;
+			pairIndex.track = 0;
+			pairIndex.next(8 - 2 * ((x + 2) % 4));
+
 			for (uint32_t i = 0; i < 20; i++)
 			{
-				mk_wire(
-				  "VS", Wire::Direction::NORTH, {x, 0}, {x, 0}, nextidx, nextsbi);
-				mk_wire(
-				  "VS", Wire::Direction::SOUTH, {x, 0}, {x, 0}, nextidx, nextsbi);
+				make_wire("VS",
+				          Wire::Direction::NORTH,
+				          {x, 0},
+				          {x, 0},
+				          *index.next(),
+				          *pairIndex.next());
+
+				make_wire("VS",
+				          Wire::Direction::SOUTH,
+				          {x, 0},
+				          {x, 0},
+				          *index.next(),
+				          *pairIndex.next());
 			}
 		}
 	}
-
-#undef nextidx
-#undef nextsbi
 
 	void RoutingGenerator::generate_semicol_clks()
 	{
 		for (uint32_t x = 0; x < dev.dims.x; x++)
 		{
 			// TODO: fix sizes to be generic
-			mk_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 50, 50);
-			mk_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 50, 50);
-			mk_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 51, 51);
-			mk_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 51, 51);
-			mk_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 52, 52);
-			mk_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 52, 52);
-			mk_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 53, 53);
-			mk_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 53, 53);
+			make_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 50, 50);
+			make_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 50, 50);
+			make_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 51, 51);
+			make_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 51, 51);
+			make_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 52, 52);
+			make_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 52, 52);
+			make_wire("CC", Wire::Direction::NORTH, {x, 81}, {x, 160}, 53, 53);
+			make_wire("CC", Wire::Direction::SOUTH, {x, 80}, {x, 1}, 53, 53);
 		}
 	}
 
 	void RoutingGenerator::generate_global_clks() {}
 
-	Wire &RoutingGenerator::mk_wire(const data::string &type,
-	                                Wire::Direction dir,
-	                                vec2 start,
-	                                vec2 end,
-	                                uint32_t track,
-	                                uint32_t sbi)
+	Wire &RoutingGenerator::make_wire(const data::string &type,
+	                                  Wire::Direction dir,
+	                                  vec2 start,
+	                                  vec2 end,
+	                                  uint32_t track,
+	                                  uint32_t sbi)
 	{
 		auto &wire = *dev.wires.emplace_back(data::make_unique<Wire>(Wire{}));
 		wire.start = start;
@@ -334,6 +502,7 @@ namespace tritium
 		wire.track = track;
 		wire.switchBoxIndex = sbi;
 		wire.name.push_back(dev.id(type).idx);
+
 		switch (dir)
 		{
 			case Wire::Direction::NORTH:
@@ -342,18 +511,21 @@ namespace tritium
 				wire.name.push_back(
 				  dev.id(fmt::format("Y[{}:{}]", start.y, end.y)).idx);
 				break;
+
 			case Wire::Direction::SOUTH:
 				wire.name.push_back(dev.id(fmt::format("X{}", start.x)).idx);
 				wire.name.push_back(dev.id("S").idx);
 				wire.name.push_back(
 				  dev.id(fmt::format("Y[{}:{}]", start.y, end.y)).idx);
 				break;
+
 			case Wire::Direction::EAST:
 				wire.name.push_back(dev.id(fmt::format("Y{}", start.y)).idx);
 				wire.name.push_back(dev.id("E").idx);
 				wire.name.push_back(
 				  dev.id(fmt::format("X[{}:{}]", start.x, end.x)).idx);
 				break;
+
 			case Wire::Direction::WEST:
 				wire.name.push_back(dev.id(fmt::format("Y{}", start.y)).idx);
 				wire.name.push_back(dev.id("W").idx);
@@ -361,9 +533,11 @@ namespace tritium
 				  dev.id(fmt::format("X[{}:{}]", start.x, end.x)).idx);
 				break;
 		}
+
 		wire.name.push_back(dev.id(fmt::format("{}", track)).idx);
 		wire.name.push_back(dev.id(fmt::format("{}", sbi)).idx);
 		wire.type = Wire::WireType::LOCAL;
+
 		return wire;
 	}
 }

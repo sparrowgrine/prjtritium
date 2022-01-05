@@ -10,13 +10,16 @@
 
 int main(int argc, char **argv)
 {
-	auto dev       = tritium::Device();
-	dev.name       = "oph_77x162_b3_d1";
-	dev.speedGrade = "C3";
-	dev.dims.x     = 78;
-	dev.dims.y     = 163;
-	auto rg        = tritium::RoutingGenerator(dev);
+	tritium::Device dev{
+	  .name       = "oph_77x162_b3_d1",
+	  .speedGrade = "C3",
+	  .dims       = {.x = 78, .y = 163},
+	};
+
+	tritium::RoutingGenerator rg{dev};
 	rg.generateRoutes();
-	std::cout << "meow" << std::endl;
+
+	std::cout << "meow\n";
+
 	return 0;
 }
