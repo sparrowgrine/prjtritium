@@ -13,7 +13,7 @@ namespace tritium
 	{
 		Device &dev;
 
-	public:
+	  public:
 		RoutingGenerator(Device &dev) : dev(dev) {}
 
 		void generateRoutes();
@@ -24,12 +24,8 @@ namespace tritium
 		void generate_semicol_clks();
 		void generate_global_clks();
 
-		Wire &make_wire(const data::string &type,
-		                Wire::Direction dir,
-		                vec2 start,
-		                vec2 end,
-		                uint32_t track,
-		                uint32_t sbi);
+		Wire &make_wire(
+		    const data::string &type, Wire::Direction dir, vec2 start, vec2 end, uint32_t unknown, uint32_t track);
 	};
 }
 

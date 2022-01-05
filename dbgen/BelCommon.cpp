@@ -8,95 +8,77 @@
 
 #include <iostream>
 
-template<>
-struct std::hash<tritium::vec2>
-{
-	size_t operator()(const tritium::vec2 &v) const noexcept
-	{
-		return cista::hash_combine(v.x, v.y);
-	};
-};
-
 void tritium::BelCommon::generate()
 {
 	throw "Cannot generate an undifferentiated cell!";
 }
 
-tritium::Pip &tritium::BelCommon::make_pip(const data::string &name,
-                                           tritium::vec2 loc)
+tritium::Pip &tritium::BelCommon::make_pip(const data::string &name, tritium::vec2 loc)
 {
 	auto &pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
-	pip.name.push_back(dev.id("INT").idx);
-	pip.name.push_back(dev.id(bel.typestr()).idx);
-	pip.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)).idx);
-	pip.name.push_back(dev.id(name).idx);
+	pip.name.push_back(dev.id("INT"));
+	pip.name.push_back(dev.id(bel.typestr()));
+	pip.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
+	pip.name.push_back(dev.id(name));
 	pip.loc = loc;
 	return pip;
 }
 
-tritium::Wire &tritium::BelCommon::make_intwire(const data::string &name,
-                                                tritium::vec2 loc)
+tritium::Wire &tritium::BelCommon::make_intwire(const data::string &name, tritium::vec2 loc)
 {
 	auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{}))};
-	wire.name.push_back(dev.id("INT").idx);
-	wire.name.push_back(dev.id(bel.typestr()).idx);
-	wire.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)).idx);
-	wire.name.push_back(dev.id(name).idx);
+	wire.name.push_back(dev.id("INT"));
+	wire.name.push_back(dev.id(bel.typestr()));
+	wire.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
+	wire.name.push_back(dev.id(name));
 	wire.type  = Wire::WireType::INTERNAL;
 	wire.start = loc;
 	wire.end   = loc;
 	return wire;
 }
 
-tritium::BelPin &tritium::BelCommon::make_pin(const data::string &name,
-                                              BelPin::PinType type,
-                                              tritium::vec2 loc)
+tritium::BelPin &tritium::BelCommon::make_pin(const data::string &name, BelPin::PinType type, tritium::vec2 loc)
 {
 	auto &bp{*bel.pins.emplace_back(data::make_unique<BelPin>(BelPin{}))};
-	bp.name.push_back(dev.id(bel.typestr()).idx);
-	bp.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)).idx);
-	bp.name.push_back(dev.id(name).idx);
+	bp.name.push_back(dev.id(bel.typestr()));
+	bp.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
+	bp.name.push_back(dev.id(name));
 	bp.type = type;
 	return bp;
 }
 
 void tritium::BelCommon::link_wire_to(tritium::Wire &wire, tritium::Pip &tgt)
 {
-	tgt.inputs.push_back(&wire);
-	wire.sinks.emplace_back(&tgt);
+	tgt.inputs.emplace_back(&wire);
+	wire.sinks.emplace_back(data::ptr<Pip>{&tgt});
 }
 
-void tritium::BelCommon::link_wire_to(tritium::Wire &wire,
-                                      tritium::BelPin &tgt)
+void tritium::BelCommon::link_wire_to(tritium::Wire &wire, tritium::BelPin &tgt)
 {
 	tgt.wire = &wire;
-	wire.sinks.emplace_back(&tgt);
+	wire.sinks.emplace_back(data::ptr<BelPin>{&tgt});
 }
 
 void tritium::BelCommon::link_to_wire(tritium::Pip &src, tritium::Wire &wire)
 {
-	src.outputs.push_back(&wire);
-	wire.sources.emplace_back(&src);
+	src.outputs.emplace_back(&wire);
+	wire.sources.emplace_back(data::ptr<Pip>{&src});
 }
 
-void tritium::BelCommon::link_to_wire(tritium::BelPin &src,
-                                      tritium::Wire &wire)
+void tritium::BelCommon::link_to_wire(tritium::BelPin &src, tritium::Wire &wire)
 {
 	src.wire = &wire;
-	wire.sources.emplace_back(&src);
+	wire.sources.emplace_back(data::ptr<BelPin>{&src});
 }
 
-tritium::Wire &tritium::BelCommon::out_lwire_for_dir(
-  tritium::Wire::Direction dir, tritium::vec2 loc)
+tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc)
 {
 	switch (dir)
 	{
 		case Wire::Direction::NORTH:
 			for (auto wire : wbl[loc].ytracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("VL").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VL")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -104,9 +86,7 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(
 		case Wire::Direction::SOUTH:
 			for (auto wire : wbl[loc - vec2{0, 1}].ytracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("VL").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VL")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -114,9 +94,7 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(
 		case Wire::Direction::EAST:
 			for (auto wire : wbl[vec2{loc.x + 1, loc.y - 1}].xtracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("HL").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HL")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -124,9 +102,7 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(
 		case Wire::Direction::WEST:
 			for (auto wire : wbl[loc - vec2{0, 1}].xtracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("HL").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HL")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -138,17 +114,14 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(
 	}
 }
 
-tritium::Wire &tritium::BelCommon::out_swire_for_dir(
-  tritium::Wire::Direction dir, tritium::vec2 loc)
+tritium::Wire &tritium::BelCommon::out_swire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc)
 {
 	switch (dir)
 	{
 		case Wire::Direction::NORTH:
 			for (auto wire : wbl[loc].ytracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("VS").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VS")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -156,9 +129,7 @@ tritium::Wire &tritium::BelCommon::out_swire_for_dir(
 		case Wire::Direction::SOUTH:
 			for (auto wire : wbl[loc - vec2{0, 1}].ytracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("VS").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("VS")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -166,9 +137,7 @@ tritium::Wire &tritium::BelCommon::out_swire_for_dir(
 		case Wire::Direction::EAST:
 			for (auto wire : wbl[vec2{loc.x + 1, loc.y - 1}].xtracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("HS").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HS")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -176,15 +145,32 @@ tritium::Wire &tritium::BelCommon::out_swire_for_dir(
 		case Wire::Direction::WEST:
 			for (auto wire : wbl[loc - vec2{0, 1}].xtracks)
 			{
-				if (wire->start == loc && wire->dir == dir &&
-				    wire->name.at(0) == dev.id("HS").idx)
-					return *wire;
+				if (wire->start == loc && wire->dir == dir && wire->name.at(0) == dev.id("HS")) return *wire;
 			}
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
-		default:
-			std::cerr << "ERR: Invalid Output Wire Request!!!!\n";
+		default: std::cerr << "ERR: Invalid Output Wire Request!!!!\n"; std::terminate();
+	}
+}
+
+void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXIndex idx) {
+	switch(idx) {
+		case IMUXIndex::IMUXA:
+			break;
+		case IMUXIndex::IMUXB:
+			break;
+		case IMUXIndex::IMUXC:
+			break;
+		case IMUXIndex::IMUXD:
+			break;
+		case IMUXIndex::IMUXCE:
+			break;
+		case IMUXIndex::IMUXSR:
+			wbl[imux.loc].xtracks
+			break;
+		case IMUXIndex::UNKNOWN:
+			std::cerr << "ERR: Unknown IMUXIndex!!!!\n";
 			std::terminate();
 	}
 }

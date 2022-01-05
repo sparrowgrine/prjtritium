@@ -19,7 +19,12 @@ void tritium::EFTGenerator::generate()
 	auto &opin_lut{make_pin("L4_O", BelPin::PinType::OUTPUT)};
 	auto &opin_add{make_pin("FA_O", BelPin::PinType::OUTPUT)};
 	auto &opin_mux{make_pip("OMUXCELL")};
-	auto &opin_ff{make_pin("FF_O", BelPin::PinType::OUTPUT)};
+
+	auto &ff_d{make_pin("FF_D", BelPin::PinType::OUTPUT)};
+	auto &ff_q{make_pin("FF_Q", BelPin::PinType::OUTPUT)};
+    auto &ff_clk{make_pin("FF_CLK", BelPin::PinType::INPUT)};
+	auto &ff_ce{make_pin("FF_CE", BelPin::PinType::INPUT)};
+	auto &ff_sr{make_pin("FF_SR", BelPin::PinType::INPUT)};
 
 	link_termini(opin_lut, opin_mux);
 	link_termini(opin_add, opin_mux);

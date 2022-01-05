@@ -4,23 +4,21 @@
 
 #include "types.h"
 
-#include <cassert>
-
 namespace tritium
 {
 	data::string Bel::typestr() const
 	{
 		switch (type)
 		{
-			case Bel::beltype_t::IO: return "IO";
-			case Bel::beltype_t::GBUF: return "GBUF";
-			case Bel::beltype_t::GBUF_CTRL: return "GBUF_CTRL";
-			case Bel::beltype_t::EFTIO: return "EFTIO";
-			case Bel::beltype_t::EFL: return "EFL";
-			case Bel::beltype_t::EFT: return "EFT";
-			case Bel::beltype_t::MEM: return "MEM";
-			case Bel::beltype_t::MULT: return "MULT";
-			case Bel::beltype_t::EMPTY: return "EMPTY";
+			case Bel::Type::IO: return "IO";
+			case Bel::Type::GBUF: return "GBUF";
+			case Bel::Type::GBUF_CTRL: return "GBUF_CTRL";
+			case Bel::Type::EFTIO: return "EFTIO";
+			case Bel::Type::EFL: return "EFL";
+			case Bel::Type::EFT: return "EFT";
+			case Bel::Type::MEM: return "MEM";
+			case Bel::Type::MULT: return "MULT";
+			case Bel::Type::EMPTY: return "EMPTY";
 			default: return "????";
 		}
 	}

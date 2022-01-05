@@ -7,7 +7,7 @@ module EFXDBGen
         @wbl = wbl
         @bel = bel
       end
-      def lnk_wire_to(wire, tgt)
+      def link_wire_to(wire, tgt)
         if tgt.instance_of? Pip
           tgt.inputs << wire
           wire.sinks << Terminus.new(pip: tgt)
@@ -16,7 +16,7 @@ module EFXDBGen
           wire.sinks << Terminus.new(bp: tgt)
         end
       end
-      def lnk_to_wire(src, wire)
+      def link_to_wire(src, wire)
         if src.instance_of? Pip
           src.outputs << wire
           wire.sources << Terminus.new(pip: src)
@@ -26,28 +26,28 @@ module EFXDBGen
         end
       end
 
-      def lnk_termini(src, dst,loc = @bel.start)
-        wire = mk_intwire("#{src.name.split(':').last}:#{dst.name.split(':').last}",loc)
-        lnk_to_wire(src, wire)
-        lnk_wire_to(wire, dst)
+      def link_termini(src, dst,loc = @bel.start)
+        wire = make_intwire("#{src.name.split(':').last}:#{dst.name.split(':').last}",loc)
+        link_to_wire(src, wire)
+        link_wire_to(wire, dst)
       end
 
-      def mk_intwire(wirename,loc = @bel.start)
-        wire = Wire.new(name: "INT:#{@bel.type}:X#{loc.x}Y#{loc.y}:#{wirename}", type: Wire::WireType::INTERNAL)
+      def make_intwire(wirename,loc = @bel.start)
+        wire = Wire.new(name: "INT:#{@bel.type}:X#{loc.x}Y#{loc.y}:#{wirename}", type: Wire::Type::INTERNAL)
         wire.start = @bel.start
         wire.end = @bel.end
         @device.wires << wire
         wire
       end
 
-      def mk_pip(pipname, loc = @bel.start)
+      def make_pip(pipname, loc = @bel.start)
         pip = Pip.new(name: "#{@bel.type}:X#{loc.x}Y#{loc.y}:#{pipname}")
         pip.position = @bel.start
         @device.pips << pip
         pip
       end
 
-      def mk_pin(pinname, type, loc = @bel.start)
+      def make_pin(pinname, type, loc = @bel.start)
         bp = BelPin.new(name: "#{@bel.type}:X#{loc.x}Y#{loc.y}:#{pinname}")
         bp.parent = @bel
         @bel.pins << bp
@@ -105,17 +105,17 @@ module EFXDBGen
 
       def make_imuxes_for_pins(pinmap = {}, loc = @bel.start)
         pinmap.map do |muxid, pinname|
-          imux = mk_pip(OPHConsts::MUXNAMES[muxid],loc)
-          bp = mk_pin(pinname, BelPin::PinType::INPUT, loc)
-          lnk_termini(imux, bp, loc)
+          imux = make_pip(OPHConsts::MUXNAMES[muxid],loc)
+          bp = make_pin(pinname, BelPin::PinType::INPUT, loc)
+          link_termini(imux, bp, loc)
           # OPHConsts::HTRACKIDS[muxid].each do |htrack|
           #   wire = @wbl[[loc.x, loc.y]].xtracks[htrack]
           #   puts wire
-          #   lnk_wire_to(wire,imux)
+          #   link_wire_to(wire,imux)
           # end
           # OPHConsts::VTRACKIDS[muxid].each do |vtrack|
           #   wire = @wbl[[loc.x, loc.y - 1]].ytracks[vtrack]
-          #   lnk_wire_to(wire, imux)
+          #   link_wire_to(wire, imux)
           # end
           bp
         end

@@ -5,6 +5,8 @@
 #ifndef LIBTRITIUM_TYPES_H
 #define LIBTRITIUM_TYPES_H
 
+#include <utility>
+
 #include "cista.h"
 
 #include <utility>
@@ -15,14 +17,8 @@ namespace tritium
 {
 	class BelPin;
 	class Wire;
-	class Terminus;
 	class Pip;
-
-	struct IdString
-	{
-		cista::indexed<data::string> str;
-		uint32_t idx;
-	};
+	class Device;
 
 	struct vec2
 	{
@@ -39,7 +35,7 @@ namespace tritium
 
 	struct Bel
 	{
-		enum class beltype_t : uint8_t
+		enum class Type : uint8_t
 		{
 			EMPTY     = 0,
 			IO        = 1,
@@ -53,46 +49,12 @@ namespace tritium
 		};
 
 		data::vector<uint32_t> name;
-		beltype_t type;
+		Type type;
 		vec2 start;
 		vec2 end;
 		data::vector<data::unique_ptr<BelPin>> pins;
 
 		[[nodiscard]] data::string typestr() const;
-	};
-
-	struct Terminus
-	{
-		enum class TermType : uint8_t
-		{
-			TERM_PIP = 0,
-			TERM_BP  = 1
-		};
-		TermType type;
-		union
-		{
-			data::ptr<BelPin> bp;
-			data::ptr<Pip> pip;
-		};
-		explicit Terminus(data::ptr<Pip> pip)
-		{
-			type      = TermType::TERM_PIP;
-			this->pip = std::move(pip);
-		}
-		explicit Terminus(data::ptr<BelPin> bp)
-		{
-			type     = TermType::TERM_BP;
-			this->bp = std::move(bp);
-		}
-		Terminus(Terminus &&o) noexcept
-		{
-			type = o.type;
-			switch (type)
-			{
-				case TermType::TERM_PIP: this->pip = std::move(o.pip); break;
-				case TermType::TERM_BP: this->bp = std::move(o.bp); break;
-			}
-		}
 	};
 
 	struct Wire
@@ -121,10 +83,12 @@ namespace tritium
 		vec2 end;
 		float R;
 		float C;
+		uint32_t unknown;
 		uint32_t track;
-		uint32_t switchBoxIndex;
-		data::vector<Terminus> sources;
-		data::vector<Terminus> sinks;
+		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sources;
+		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sinks;
+
+		std::string getName(Device &dev);
 	};
 
 	struct Pip
@@ -159,31 +123,19 @@ namespace tritium
 		data::vector<data::unique_ptr<tritium::Bel>> bels;
 		data::vector<data::unique_ptr<tritium::Wire>> wires;
 		data::vector<data::unique_ptr<tritium::Pip>> pips;
-		data::vector<tritium::IdString> idstrings;
 		data::hash_map<data::string, uint32_t> idstring_str_to_idx;
-		data::vector<data::ptr<data::string>> idstring_idx_to_str;
+		data::vector<data::string> idstring_idx_to_str;
 
-	public:
-		tritium::IdString id(data::string str)
-		{
-			if (auto it = idstring_str_to_idx.find(str);
-			    it != idstring_str_to_idx.end())
-				return idstrings.at(it->second);
-
-			uint32_t strid = [&]() -> uint32_t
-			{
-				auto strid{idstring_str_to_idx.size()};
-				assert(strid <= UINT32_MAX);
-				return uint32_t(strid);
-			}();
-			IdString idstr{cista::indexed{str}, strid};
-			idstring_idx_to_str.push_back(&idstr.str);
-			idstrings.emplace_back(idstr);
-			idstring_str_to_idx.insert({str, strid});
-
-			return idstr;
-		}
+	  public:
+		Bel &make_bel(Bel::Type type, vec2 start);
+		uint32_t id(data::string str);
+		data::string str(uint32_t id);
 	};
 }
+template<>
+struct std::hash<tritium::vec2>
+{
+	size_t operator()(const tritium::vec2 &v) const noexcept { return cista::hash_combine(v.x, v.y); };
+};
 
 #endif // LIBTRITIUM_TYPES_H

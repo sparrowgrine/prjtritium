@@ -35,13 +35,13 @@ module EFXDBGen
         end
       end
 
-      def make_local_wire(type, dir, start, endloc, track, sbi)
-        Wire.new(name: "#{localwire_substring_for_info(type, dir, start, endloc)}:#{track}:#{sbi}",
+      def make_local_wire(type, dir, start, endloc, unknown, sbi)
+        Wire.new(name: "#{localwire_substring_for_info(type, dir, start, endloc)}:#{unknown}:#{sbi}",
                  dir: dir,
                  start: start,
                  end: endloc,
-                 type: Wire::WireType::LOCAL,
-                 track: track,
+                 type: Wire::Type::LOCAL,
+                 unknown: unknown,
                  switchBoxIndex: sbi)
       end
 
@@ -348,19 +348,19 @@ module EFXDBGen
           case wire.dir
           when :NORTH
             (wire.start.y..wire.end.y).each do |y|
-              @wbl[[wire.start.x, y]].ytracks[wire.track] = wire
+              @wbl[[wire.start.x, y]].ytracks[wire.unknown] = wire
             end
           when :SOUTH
             (wire.end.y..wire.start.y).each do |y|
-              @wbl[[wire.start.x, y]].ytracks[wire.track] = wire
+              @wbl[[wire.start.x, y]].ytracks[wire.unknown] = wire
             end
           when :EAST
             (wire.start.x..wire.end.x).each do |x|
-              @wbl[[x, wire.start.y]].xtracks[wire.track] = wire
+              @wbl[[x, wire.start.y]].xtracks[wire.unknown] = wire
             end
           when :WEST
           (wire.end.x..wire.start.x).each do |x|
-            @wbl[[x, wire.start.y]].xtracks[wire.track] = wire
+            @wbl[[x, wire.start.y]].xtracks[wire.unknown] = wire
           end
           end
         end
@@ -377,13 +377,13 @@ module EFXDBGen
           case bel.type
           when :IO
             outpad = BelPin.new(type: BelPin::PinType::INPUT, name: 'OPAD')
-            outpad.wire = Wire.new(name: "IO:X#{bel.start.x}Y#{bel.start.y}:OPAD", type: Wire::WireType::INTERBEL)
+            outpad.wire = Wire.new(name: "IO:X#{bel.start.x}Y#{bel.start.y}:OPAD", type: Wire::Type::INTERBEL)
             outpad.parent = bel
             @device.wires << outpad.wire
             bel.pins << outpad
             outpad.wire.sinks << Terminus.new(bp: outpad)
             inpad = BelPin.new(type: BelPin::PinType::OUTPUT, name: 'IPAD')
-            inpad.wire = Wire.new(name: "IO:X#{bel.start.x}Y#{bel.start.y}:IPAD", type: Wire::WireType::INTERBEL)
+            inpad.wire = Wire.new(name: "IO:X#{bel.start.x}Y#{bel.start.y}:IPAD", type: Wire::Type::INTERBEL)
             inpad.parent = bel
             @device.wires << inpad.wire
             outpad.wire.sources << Terminus.new(bp: inpad)

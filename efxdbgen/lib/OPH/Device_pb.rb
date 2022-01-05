@@ -12,17 +12,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "Wire" do
       optional :name, :string, 1
       optional :dir, :enum, 2, "Wire.Direction"
-			optional :type,:enum, 3, "Wire.WireType"
+			optional :type,:enum, 3, "Wire.Type"
       optional :start, :message, 4, "Loc"
       optional :end, :message, 5, "Loc"
       optional :R, :float, 6
       optional :C, :float, 7
-      optional :track, :uint32, 8
+      optional :unknown, :uint32, 8
       optional :switchBoxIndex, :uint32, 9
       repeated :sources, :message, 10, "Terminus"
       repeated :sinks, :message, 11, "Terminus"
 		end
-		add_enum "Wire.WireType" do
+		add_enum "Wire.Type" do
 			value :LOCAL, 0
       value :GLOBAL, 1
       value :INTERNAL, 2
@@ -90,7 +90,7 @@ Terminus = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Terminus").
 Loc = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Loc").msgclass
 Wire = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Wire").msgclass
 Wire::Direction = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Wire.Direction").enummodule
-Wire::WireType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Wire.WireType").enummodule
+Wire::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Wire.Type").enummodule
 Pip = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("Pip").msgclass
 BelPin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("BelPin").msgclass
 BelPin::PinType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("BelPin.PinType").enummodule
