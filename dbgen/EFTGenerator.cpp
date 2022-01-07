@@ -16,15 +16,15 @@ void tritium::EFTGenerator::generate()
 	auto &imuxc{make_pip("IMUXC")};
 	auto &imuxd{make_pip("IMUXD")};
 
-	link_wires_to_imux_by_index(imuxa,BelCommon::IMUXIndex::IMUXA);
-	link_wires_to_imux_by_index(imuxb,BelCommon::IMUXIndex::IMUXB);
-	link_wires_to_imux_by_index(imuxc,BelCommon::IMUXIndex::IMUXC);
-	link_wires_to_imux_by_index(imuxd,BelCommon::IMUXIndex::IMUXD);
+	link_wires_to_imux_by_index(imuxa, BelCommon::IMUXIndex::IMUXA);
+	link_wires_to_imux_by_index(imuxb, BelCommon::IMUXIndex::IMUXB);
+	link_wires_to_imux_by_index(imuxc, BelCommon::IMUXIndex::IMUXC);
+	link_wires_to_imux_by_index(imuxd, BelCommon::IMUXIndex::IMUXD);
 
-	link_termini(imuxa,l4i0);
-	link_termini(imuxb,l4i1);
-	link_termini(imuxc,l4i2);
-	link_termini(imuxd,l4i3);
+	link_termini(imuxa, l4i0);
+	link_termini(imuxb, l4i1);
+	link_termini(imuxc, l4i2);
+	link_termini(imuxd, l4i3);
 
 	auto &i0{make_pin("FA_I0", BelPin::PinType::INPUT)};
 	auto &i1{make_pin("FA_I1", BelPin::PinType::INPUT)};
@@ -37,7 +37,7 @@ void tritium::EFTGenerator::generate()
 
 	auto &ff_d{make_pin("FF_D", BelPin::PinType::OUTPUT)};
 	auto &ff_q{make_pin("FF_Q", BelPin::PinType::OUTPUT)};
-    auto &ff_clk{make_pin("FF_CLK", BelPin::PinType::INPUT)};
+	auto &ff_clk{make_pin("FF_CLK", BelPin::PinType::INPUT)};
 	auto &ff_ce{make_pin("FF_CE", BelPin::PinType::INPUT)};
 	auto &ff_sr{make_pin("FF_SR", BelPin::PinType::INPUT)};
 
@@ -57,14 +57,14 @@ void tritium::EFTGenerator::generate()
 	auto &rtmuxns{make_pip("RTMUXNS")};
 	auto &rtmuxew{make_pip("RTMUXEW")};
 
-	link_termini(imuxa,rtmuxns);
-	link_termini(imuxa,rtmuxew);
-	link_termini(imuxb,rtmuxns);
-	link_termini(imuxb,rtmuxew);
-	link_termini(imuxc,rtmuxns);
-	link_termini(imuxc,rtmuxew);
-	link_termini(imuxd,rtmuxns);
-	link_termini(imuxd,rtmuxew);
+	link_termini(imuxa, rtmuxns);
+	link_termini(imuxa, rtmuxew);
+	link_termini(imuxb, rtmuxns);
+	link_termini(imuxb, rtmuxew);
+	link_termini(imuxc, rtmuxns);
+	link_termini(imuxc, rtmuxew);
+	link_termini(imuxd, rtmuxns);
+	link_termini(imuxd, rtmuxew);
 
 	auto &omuxshort{make_pip("OMUXSHORT")};
 

@@ -114,7 +114,6 @@ namespace tritium
 		vec2 loc;
 		data::ptr<Wire> wire;
 		PinType type;
-
 	};
 
 	struct Device

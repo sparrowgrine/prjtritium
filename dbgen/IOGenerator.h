@@ -11,7 +11,7 @@ namespace tritium
 {
 	class IOGenerator : public BelCommon
 	{
-	  public:
+	public:
 		IOGenerator(Device &dev, std::unordered_map<vec2, GridCell> &wbl, Bel &bel) : BelCommon(dev, wbl, bel) {}
 
 		void generate() override;

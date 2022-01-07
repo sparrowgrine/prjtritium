@@ -21,15 +21,15 @@ void tritium::GBUFGenerator::generate()
 	auto &imuxc{make_pip("IMUXC")};
 	auto &imuxd{make_pip("IMUXD")};
 
-	link_wires_to_imux_by_index(imuxa,BelCommon::IMUXIndex::IMUXA);
-	link_wires_to_imux_by_index(imuxb,BelCommon::IMUXIndex::IMUXB);
-	link_wires_to_imux_by_index(imuxc,BelCommon::IMUXIndex::IMUXC);
-	link_wires_to_imux_by_index(imuxd,BelCommon::IMUXIndex::IMUXD);
+	link_wires_to_imux_by_index(imuxa, BelCommon::IMUXIndex::IMUXA);
+	link_wires_to_imux_by_index(imuxb, BelCommon::IMUXIndex::IMUXB);
+	link_wires_to_imux_by_index(imuxc, BelCommon::IMUXIndex::IMUXC);
+	link_wires_to_imux_by_index(imuxd, BelCommon::IMUXIndex::IMUXD);
 
-	link_termini(imuxa,i0);
-	link_termini(imuxb,i1);
-	link_termini(imuxc,i2);
-	link_termini(imuxd,i3);
+	link_termini(imuxa, i0);
+	link_termini(imuxb, i1);
+	link_termini(imuxc, i2);
+	link_termini(imuxd, i3);
 
 	auto &rtmux0{make_pip("RTMUX0")};
 	auto &rtmux1{make_pip("RTMUX1")};
@@ -84,9 +84,9 @@ void tritium::GBUFGenerator::generate()
 	link_to_wire(omuxeast, out_lwire_for_dir(Wire::Direction::EAST));
 
 	auto &opadmux{make_pip("OPADMUX")};
-	link_termini(i0,opadmux);
-	link_termini(i1,opadmux);
-	link_termini(i2,opadmux);
-	link_termini(i3,opadmux);
+	link_termini(i0, opadmux);
+	link_termini(i1, opadmux);
+	link_termini(i2, opadmux);
+	link_termini(i3, opadmux);
 	link_termini(opadmux, clkout);
 }

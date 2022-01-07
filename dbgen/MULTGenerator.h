@@ -11,7 +11,7 @@ namespace tritium
 {
 	class MULTGenerator : public BelCommon
 	{
-	  public:
+	public:
 		MULTGenerator(Device &dev, std::unordered_map<vec2, GridCell> &wbl, Bel &bel) : BelCommon(dev, wbl, bel) {}
 
 		void generate() override;
