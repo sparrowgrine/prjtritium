@@ -30,10 +30,10 @@ uint32_t vpr_to_phy_track(uint32_t vtrack, uint32_t x, uint32_t y, bool isXRoute
 
 	const uint32_t idek{(((segNum - 1U) + (chanNum - (isXRoute ? 0U : 1U))) * dir) % group_size};
 	const uint32_t group_size_over_dir{group_size / dir};
-	const uint32_t vtrack_sub_group_size{vtrack - group_size};
+	const uint32_t vtrack_sub_group_start{vtrack - group_start};
 
-	return (dir * (((group_size_over_dir - (idek / dir)) + (vtrack_sub_group_size / dir)) % group_size_over_dir)) +
-	       group_start + (vtrack_sub_group_size % dir);
+	return (dir * (((group_size_over_dir - (idek / dir)) + (vtrack_sub_group_start / dir)) % group_size_over_dir)) +
+	       group_start + (vtrack_sub_group_start % dir);
 }
 
 static Bel::Type type_for_str(const std::string &str)
