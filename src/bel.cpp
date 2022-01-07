@@ -6,6 +6,16 @@
 
 namespace tritium
 {
+	std::string Bel::getName(Device &dev)
+	{
+		std::string out{dev.str(name.front())};
+		for (auto id = name.begin() + 1; id != name.end(); ++id)
+		{
+			out += ":";
+			out += dev.str(*id);
+		}
+		return out;
+	}
 	data::string Bel::typestr() const
 	{
 		switch (type)

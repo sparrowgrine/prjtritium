@@ -35,7 +35,7 @@ namespace tritium
 
 	struct Bel
 	{
-		enum class Type : uint8_t
+		enum class Type : uint32_t
 		{
 			EMPTY     = 0,
 			IO        = 1,
@@ -49,17 +49,18 @@ namespace tritium
 		};
 
 		data::vector<uint32_t> name;
-		Type type;
 		vec2 start;
 		vec2 end;
 		data::vector<data::unique_ptr<BelPin>> pins;
+		Type type;
 
 		[[nodiscard]] data::string typestr() const;
+		std::string getName(Device &dev);
 	};
 
 	struct Wire
 	{
-		enum class Direction : uint8_t
+		enum class Direction : uint32_t
 		{
 			UNDEF = 0,
 			NORTH = 1,
@@ -68,7 +69,7 @@ namespace tritium
 			WEST  = 4
 		};
 
-		enum class WireType : uint8_t
+		enum class WireType : uint32_t
 		{
 			LOCAL    = 0,
 			GLOBAL   = 1,
@@ -83,8 +84,8 @@ namespace tritium
 		vec2 end;
 		float R;
 		float C;
-		uint32_t unknown;
 		uint32_t track;
+		uint32_t sbi;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sources;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sinks;
 
@@ -101,7 +102,7 @@ namespace tritium
 
 	struct BelPin
 	{
-		enum class PinType : uint8_t
+		enum class PinType : uint32_t
 		{
 			UNDEF  = 0,
 			INPUT  = 1,
@@ -110,16 +111,17 @@ namespace tritium
 		};
 
 		data::vector<uint32_t> name;
-		PinType type;
 		vec2 loc;
 		data::ptr<Wire> wire;
+		PinType type;
+
 	};
 
 	struct Device
 	{
+		vec2 dims;
 		data::string name;
 		data::string speedGrade;
-		vec2 dims;
 		data::vector<data::unique_ptr<tritium::Bel>> bels;
 		data::vector<data::unique_ptr<tritium::Wire>> wires;
 		data::vector<data::unique_ptr<tritium::Pip>> pips;

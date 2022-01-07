@@ -7,9 +7,24 @@
 void tritium::EFTGenerator::generate()
 {
 	auto &l4i0{make_pin("L4_I0", BelPin::PinType::INPUT)};
-	auto &l4i1{make_pin("L4_I0", BelPin::PinType::INPUT)};
-	auto &l4i2{make_pin("L4_I0", BelPin::PinType::INPUT)};
-	auto &l4i3{make_pin("L4_I0", BelPin::PinType::INPUT)};
+	auto &l4i1{make_pin("L4_I1", BelPin::PinType::INPUT)};
+	auto &l4i2{make_pin("L4_I2", BelPin::PinType::INPUT)};
+	auto &l4i3{make_pin("L4_I3", BelPin::PinType::INPUT)};
+
+	auto &imuxa{make_pip("IMUXA")};
+	auto &imuxb{make_pip("IMUXB")};
+	auto &imuxc{make_pip("IMUXC")};
+	auto &imuxd{make_pip("IMUXD")};
+
+	link_wires_to_imux_by_index(imuxa,BelCommon::IMUXIndex::IMUXA);
+	link_wires_to_imux_by_index(imuxb,BelCommon::IMUXIndex::IMUXB);
+	link_wires_to_imux_by_index(imuxc,BelCommon::IMUXIndex::IMUXC);
+	link_wires_to_imux_by_index(imuxd,BelCommon::IMUXIndex::IMUXD);
+
+	link_termini(imuxa,l4i0);
+	link_termini(imuxb,l4i1);
+	link_termini(imuxc,l4i2);
+	link_termini(imuxd,l4i3);
 
 	auto &i0{make_pin("FA_I0", BelPin::PinType::INPUT)};
 	auto &i1{make_pin("FA_I1", BelPin::PinType::INPUT)};
@@ -41,11 +56,16 @@ void tritium::EFTGenerator::generate()
 
 	auto &rtmuxns{make_pip("RTMUXNS")};
 	auto &rtmuxew{make_pip("RTMUXEW")};
-	// inwires = ipins_lut.map(&:wires).flatten
-	// inwires.each do |iwire|
-	//   link_wire_to(iwire,rtmuxns)
-	//   link_wire_to(iwire,rtmuxew)
-	// end
+
+	link_termini(imuxa,rtmuxns);
+	link_termini(imuxa,rtmuxew);
+	link_termini(imuxb,rtmuxns);
+	link_termini(imuxb,rtmuxew);
+	link_termini(imuxc,rtmuxns);
+	link_termini(imuxc,rtmuxew);
+	link_termini(imuxd,rtmuxns);
+	link_termini(imuxd,rtmuxew);
+
 	auto &omuxshort{make_pip("OMUXSHORT")};
 
 	link_termini(rtmuxew, omuxshort);
