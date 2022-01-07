@@ -13,10 +13,12 @@
 #include "RoutingGenerator.h"
 #include "types.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
 
+namespace fs = std::filesystem;
 using namespace tritium;
 
 uint32_t vpr_to_phy_track(uint32_t vtrack, uint32_t x, uint32_t y, bool isXRoute, bool isLongRoute)
@@ -100,7 +102,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 	}
 }
 
-void parse_beldb(Device &dev, std::unordered_map<vec2, GridCell> &wbl, std::string fname)
+void parse_beldb(Device &dev, std::unordered_map<vec2, GridCell> &wbl, const std::filesystem::path &fname)
 {
 	std::ifstream belfile(fname);
 	if (!belfile)
@@ -166,9 +168,11 @@ int main(int argc, char **argv)
 
 	gen_wbl(wbl, dev);
 
-	parse_beldb(dev, wbl, "beldb/oph_77x162_b3_d1.beldb");
+	parse_beldb(dev, wbl, fs::path{argc > 1 ? argv[1] : "../beldb"} / "oph_77x162_b3_d1.beldb");
 
 	cista::file chipdb{"oph_77x162_b3_d1_C3.chipdb", "w+"};
+
+	std::cout << "awoo\n";
 
 	cista::serialize<cista::mode::WITH_VERSION>(chipdb, dev);
 
