@@ -7,6 +7,7 @@
 #include <fmt/core.h>
 
 #include <iostream>
+#include <span>
 
 void tritium::BelCommon::generate()
 {
@@ -73,45 +74,52 @@ void tritium::BelCommon::link_to_wire(tritium::BelPin &src, tritium::Wire &wire)
 
 tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc)
 {
-	vec2 tgtloc;
+	auto wire_ytracks = [&](const tritium::vec2 target) -> std::span<tritium::Wire *>
+	{
+		if (auto wires = wbl.find(target); wires != wbl.end())
+			return {wires->second.ytracks};
+		else
+			return {};
+	};
+
+	auto wire_xtracks = [&](const tritium::vec2 target) -> std::span<tritium::Wire *>
+	{
+		if (auto wires = wbl.find(target); wires != wbl.end())
+			return {wires->second.xtracks};
+		else
+			return {};
+	};
+
 	switch (dir)
 	{
 		case Wire::Direction::NORTH:
-			tgtloc = loc;
-			for (auto wire : wbl[tgtloc].ytracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("VL")) return *wire;
-			}
+			for (const vec2 target{loc}; auto wire : wire_ytracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("VL"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find northern output lwire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
 		case Wire::Direction::SOUTH:
-			tgtloc = loc - vec2{0, 1};
-			for (auto wire : wbl[tgtloc].ytracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("VL")) return *wire;
-			}
+			for (const vec2 target{loc - vec2{0, 1}}; auto wire : wire_ytracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("VL"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find southern output lwire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
 		case Wire::Direction::EAST:
-			tgtloc = vec2{loc.x + 1, loc.y - 1};
-			for (auto wire : wbl[tgtloc].xtracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("HL")) return *wire;
-			}
+			for (const vec2 target{loc.x + 1, loc.y - 1}; auto wire : wire_xtracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("HL"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find eastern output lwire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
 		case Wire::Direction::WEST:
-			tgtloc = loc - vec2{0, 1};
-			for (auto wire : wbl[tgtloc].xtracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("HL")) return *wire;
-			}
+			for (const vec2 target{loc - vec2{0, 1}}; auto wire : wire_xtracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("HL"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find western output lwire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
@@ -122,45 +130,52 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::Direction di
 
 tritium::Wire &tritium::BelCommon::out_swire_for_dir(tritium::Wire::Direction dir, tritium::vec2 loc)
 {
-	vec2 tgtloc;
+	auto wire_ytracks = [&](const tritium::vec2 target) -> std::span<tritium::Wire *>
+	{
+		if (auto wires = wbl.find(target); wires != wbl.end())
+			return {wires->second.ytracks};
+		else
+			return {};
+	};
+
+	auto wire_xtracks = [&](const tritium::vec2 target) -> std::span<tritium::Wire *>
+	{
+		if (auto wires = wbl.find(target); wires != wbl.end())
+			return {wires->second.xtracks};
+		else
+			return {};
+	};
+
 	switch (dir)
 	{
 		case Wire::Direction::NORTH:
-			tgtloc = loc;
-			for (auto wire : wbl[tgtloc].ytracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("VS")) return *wire;
-			}
+			for (const vec2 target{loc}; auto wire : wire_ytracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("VS"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find northern output swire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
 		case Wire::Direction::SOUTH:
-			tgtloc = loc - vec2{0, 1};
-			for (auto wire : wbl[tgtloc].ytracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("VS")) return *wire;
-			}
+			for (const vec2 target{loc - vec2{0, 1}}; auto wire : wire_ytracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("VS"))
+					return *wire;
 			std::cerr << fmt::format("Unable to find southern output swire on bel {}!!!!!\n", bel.getName(dev));
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
 		case Wire::Direction::EAST:
-			tgtloc = vec2{loc.x + 1, loc.y - 1};
-			for (auto wire : wbl[tgtloc].xtracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("HS")) return *wire;
-			}
+			for (const vec2 target{loc.x + 1, loc.y - 1}; auto wire : wire_xtracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("HS"))
+					return *wire;
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::cerr << fmt::format("Unable to find eastern output swire on bel {}!!!!!\n", bel.getName(dev));
 			std::terminate();
 
 		case Wire::Direction::WEST:
-			tgtloc = loc - vec2{0, 1};
-			for (auto wire : wbl[tgtloc].xtracks)
-			{
-				if (wire->start == tgtloc && wire->dir == dir && wire->name.at(0) == dev.id("HS")) return *wire;
-			}
+			for (const vec2 target{loc - vec2{0, 1}}; auto wire : wire_xtracks(target))
+				if (wire && wire->start == target && wire->dir == dir && wire->name.at(0) == dev.id("HS"))
+					return *wire;
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::cerr << fmt::format("Unable to find western output swire on bel {}!!!!!\n", bel.getName(dev));
 			std::terminate();
