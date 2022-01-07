@@ -116,10 +116,7 @@ tritium::Wire &tritium::BelCommon::out_lwire_for_dir(tritium::Wire::Direction di
 			std::cerr << "ERR: Misformed routing!!!!\n";
 			std::terminate();
 
-		default:
-			std::cerr << "ERR: Invalid Output Wire Request!!!!\n";
-			std::terminate();
-			break;
+		default: std::cerr << "ERR: Invalid Output Wire Request!!!!\n"; std::terminate();
 	}
 }
 
