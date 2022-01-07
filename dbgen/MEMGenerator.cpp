@@ -3,6 +3,7 @@
 //
 
 #include "MEMGenerator.h"
+
 void tritium::MEMGenerator::generate()
 {
 

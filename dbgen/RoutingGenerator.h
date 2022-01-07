@@ -13,7 +13,7 @@ namespace tritium
 	{
 		Device &dev;
 
-	  public:
+	public:
 		RoutingGenerator(Device &dev) : dev(dev) {}
 
 		void generateRoutes();

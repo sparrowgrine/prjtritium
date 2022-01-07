@@ -3,6 +3,7 @@
 //
 
 #include "MULTGenerator.h"
+
 void tritium::MULTGenerator::generate()
 {
 

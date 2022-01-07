@@ -5,8 +5,8 @@
 #include "EFLGenerator.h"
 #include "EFTGenerator.h"
 #include "EFTIOGenerator.h"
-#include "GBUFGenerator.h"
 #include "GBUFCTRLGenerator.h"
+#include "GBUFGenerator.h"
 #include "IOGenerator.h"
 #include "MEMGenerator.h"
 #include "MULTGenerator.h"
@@ -96,6 +96,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 					wbl[vec2{wire->start.x, i}].ytracks[track] = wire.get();
 				}
 				break;
+
 			case tritium::Wire::Direction::SOUTH:
 				for (uint32_t i = wire->end.y; i <= wire->start.y; i++)
 				{
@@ -103,6 +104,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 					wbl[vec2{wire->start.x, i}].ytracks[track] = wire.get();
 				}
 				break;
+
 			case tritium::Wire::Direction::EAST:
 				for (uint32_t i = wire->start.x; i <= wire->end.x; i++)
 				{
@@ -110,6 +112,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 					wbl[vec2{i, wire->start.y}].xtracks[track] = wire.get();
 				}
 				break;
+
 			case tritium::Wire::Direction::WEST:
 				for (uint32_t i = wire->end.x; i <= wire->start.x; i++)
 				{
@@ -129,21 +132,25 @@ void parse_beldb(Device &dev, std::unordered_map<vec2, GridCell> &wbl, std::stri
 		std::cerr << "Unable to open beldb!\n";
 		std::terminate();
 	}
+
 	std::regex belentry{R"(type: (\w+) x: (\d+) y: (\d+))"};
 	while (belfile.good())
 	{
 		std::string line;
 		std::getline(belfile, line);
+
 		std::smatch match;
 		if (!std::regex_match(line, match, belentry))
 		{
 			std::cerr << "Invalid entry in beldb!\n";
 			std::terminate();
 		}
+
 		auto typestr = match[1].str();
 		auto belx    = std::stoul(match[2].str());
 		auto bely    = std::stoul(match[3].str());
 		auto &bel{dev.make_bel(type_for_str(typestr), {belx, bely})};
+
 		switch (bel.type)
 		{
 			case Bel::Type::EFL: EFLGenerator{dev, wbl, bel}.generate(); break;
@@ -166,8 +173,10 @@ int main(int argc, char **argv)
 	    .name       = "oph_77x162_b3_d1",
 	    .speedGrade = "C3",
 	};
+
 	RoutingGenerator rg{dev};
 	rg.generateRoutes();
+
 	std::unordered_map<vec2, GridCell> wbl;
 	for (uint32_t i = 0; i < dev.dims.x; i++)
 	{
@@ -176,10 +185,16 @@ int main(int argc, char **argv)
 			wbl[vec2{i, j}] = GridCell{};
 		}
 	}
+
 	gen_wbl(wbl, dev);
+
 	parse_beldb(dev, wbl, "../beldb/oph_77x162_b3_d1.beldb");
+
 	cista::file chipdb{"oph_77x162_b3_d1_C3.chipdb", "w+"};
+
 	cista::serialize<cista::mode::WITH_VERSION>(chipdb, dev);
+
 	std::cout << "meow\n";
+
 	return 0;
 }

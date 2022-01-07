@@ -15,26 +15,25 @@ namespace tritium
 {
 	class BelCommon
 	{
-
 		Device &dev;
 		std::unordered_map<vec2, GridCell> &wbl;
 		Bel &bel;
 
-	  public:
+	public:
 		BelCommon(Device &dev, std::unordered_map<vec2, GridCell> &wbl, Bel &bel) : dev(dev), wbl(wbl), bel(bel) {}
 
 		virtual void generate();
 
-	  protected:
-
-		enum class IMUXIndex : uint8_t {
+	protected:
+		enum class IMUXIndex : uint8_t
+		{
 			UNKNOWN = 0,
-			IMUXA = 1,
-			IMUXB = 2,
-			IMUXC = 3,
-			IMUXD = 4,
-			IMUXCE = 5,
-			IMUXSR = 6
+			IMUXA   = 1,
+			IMUXB   = 2,
+			IMUXC   = 3,
+			IMUXD   = 4,
+			IMUXCE  = 5,
+			IMUXSR  = 6
 		};
 
 		Pip &make_pip(const data::string &name, vec2 loc);
