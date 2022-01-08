@@ -4,6 +4,8 @@
 
 #include "types.h"
 
+#include <string_view>
+
 namespace tritium
 {
 	std::string Bel::getName(Device &dev)
@@ -16,20 +18,18 @@ namespace tritium
 		}
 		return out;
 	}
-	data::string Bel::typestr() const
+
+	std::string_view Bel::typestr() const
 	{
+		using namespace std::string_view_literals;
+
 		switch (type)
 		{
-			case Bel::Type::IO: return "IO";
-			case Bel::Type::GBUF: return "GBUF";
-			case Bel::Type::GBUF_CTRL: return "GBUF_CTRL";
-			case Bel::Type::EFTIO: return "EFTIO";
-			case Bel::Type::EFL: return "EFL";
-			case Bel::Type::EFT: return "EFT";
-			case Bel::Type::MEM: return "MEM";
-			case Bel::Type::MULT: return "MULT";
-			case Bel::Type::EMPTY: return "EMPTY";
-			default: return "????";
+#define TRITIUM_BEL_TYPE_NAME(IDEN, ...)                                                                              \
+	case Bel::Type::IDEN: return #IDEN ""sv;
+			TRITIUM_BEL_TYPE_MACRO(TRITIUM_BEL_TYPE_NAME)
+#undef TRITIUM_BEL_TYPE_NAME
+			default: return "????"sv;
 		}
 	}
 }

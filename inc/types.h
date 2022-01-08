@@ -33,19 +33,24 @@ namespace tritium
 		size_t hash() const { return cista::hash_combine(x, y); }
 	};
 
+#define TRITIUM_BEL_TYPE_MACRO(MACRO)                                                                                 \
+	MACRO(EMPTY, 0)                                                                                                   \
+	MACRO(IO, 1)                                                                                                      \
+	MACRO(GBUF, 2)                                                                                                    \
+	MACRO(GBUF_CTRL, 3)                                                                                               \
+	MACRO(EFTIO, 4)                                                                                                   \
+	MACRO(EFL, 5)                                                                                                     \
+	MACRO(EFT, 6)                                                                                                     \
+	MACRO(MEM, 7)                                                                                                     \
+	MACRO(MULT, 8)
+
 	struct Bel
 	{
 		enum class Type : uint32_t
 		{
-			EMPTY     = 0,
-			IO        = 1,
-			GBUF      = 2,
-			GBUF_CTRL = 3,
-			EFTIO     = 4,
-			EFL       = 5,
-			EFT       = 6,
-			MEM       = 7,
-			MULT      = 8,
+#define TRITIUM_DECLARE_BEL_TYPE(IDEN, VALUE) IDEN = VALUE,
+			TRITIUM_BEL_TYPE_MACRO(TRITIUM_DECLARE_BEL_TYPE)
+#undef TRITIUM_DECLARE_BEL_TYPE
 		};
 
 		data::vector<uint32_t> name;
@@ -54,7 +59,7 @@ namespace tritium
 		data::vector<data::unique_ptr<BelPin>> pins;
 		Type type;
 
-		[[nodiscard]] data::string typestr() const;
+		[[nodiscard]] std::string_view typestr() const;
 		std::string getName(Device &dev);
 	};
 
@@ -127,10 +132,10 @@ namespace tritium
 		data::hash_map<data::string, uint32_t> idstring_str_to_idx;
 		data::vector<data::string> idstring_idx_to_str;
 
-	  public:
+	public:
 		Bel &make_bel(Bel::Type type, vec2 start);
-		uint32_t id(data::string str);
-		data::string str(uint32_t id);
+		uint32_t id(std::string_view str);
+		const data::string &str(uint32_t id);
 	};
 }
 template<>

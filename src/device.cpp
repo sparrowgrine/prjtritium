@@ -25,7 +25,7 @@ namespace tritium
 		return bel;
 	}
 
-	uint32_t Device::id(data::string str)
+	uint32_t Device::id(std::string_view str)
 	{
 		auto it = idstring_str_to_idx.find(str);
 		if (it != idstring_str_to_idx.end())
@@ -41,5 +41,5 @@ namespace tritium
 		}
 	}
 
-	data::string Device::str(uint32_t id) { return idstring_idx_to_str.at(id); }
+	const data::string &Device::str(uint32_t id) { return idstring_idx_to_str.at(id); }
 }
