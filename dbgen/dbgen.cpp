@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <string_view>
 
 namespace fs = std::filesystem;
 using namespace tritium;
@@ -38,23 +39,25 @@ uint32_t vpr_to_phy_track(uint32_t vtrack, uint32_t x, uint32_t y, bool isXRoute
 	       group_start + (vtrack_sub_group_start % dir);
 }
 
-static Bel::Type type_for_str(const std::string &str)
+static Bel::Type type_for_str(std::string_view str)
 {
-	if (str == "io")
+	using namespace std::string_view_literals;
+
+	if (str == "io"sv)
 		return Bel::Type::IO;
-	else if (str == "gbuf")
+	else if (str == "gbuf"sv)
 		return Bel::Type::GBUF;
-	else if (str == "gbuf_ctrl")
+	else if (str == "gbuf_ctrl"sv)
 		return Bel::Type::GBUF_CTRL;
-	else if (str == "eftio")
+	else if (str == "eftio"sv)
 		return Bel::Type::EFTIO;
-	else if (str == "efl")
+	else if (str == "efl"sv)
 		return Bel::Type::EFL;
-	else if (str == "eft")
+	else if (str == "eft"sv)
 		return Bel::Type::EFT;
-	else if (str == "mem")
+	else if (str == "mem"sv)
 		return Bel::Type::MEM;
-	else if (str == "mult")
+	else if (str == "mult"sv)
 		return Bel::Type::MULT;
 	else
 		return Bel::Type::EMPTY;
