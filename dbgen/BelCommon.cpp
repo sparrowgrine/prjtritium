@@ -21,7 +21,7 @@ tritium::Pip &tritium::BelCommon::make_pip(const data::string &name, tritium::ve
 	pip.name.push_back(dev.id(bel.typestr()));
 	pip.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
 	pip.name.push_back(dev.id(name));
-	pip.loc = loc;
+	pip.loc     = loc;
 	pip.isAlias = false;
 	return pip;
 }

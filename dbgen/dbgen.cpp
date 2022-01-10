@@ -13,6 +13,7 @@
 #include "RoutingGenerator.h"
 #include "types.h"
 
+#include <charconv>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -110,9 +111,16 @@ void parse_beldb(Device &dev, std::unordered_map<vec2, GridCell> &wbl, const std
 			std::terminate();
 		}
 
+		auto stou32 = [](std::string_view str)
+		{
+			uint32_t result;
+			auto [ptr, ec]{std::from_chars(str.data(), str.data() + str.size(), result)};
+			assert(ec == std::errc());
+			return result;
+		};
 		auto typestr{match[1].str()};
-		auto belx{std::stoul(match[2].str())};
-		auto bely{std::stoul(match[3].str())};
+		auto belx{stou32(match[2].str())};
+		auto bely{stou32(match[3].str())};
 		auto &bel{dev.make_bel(type_for_str(typestr), {belx, bely})};
 
 		switch (bel.type)
@@ -143,18 +151,19 @@ int main(int argc, char **argv)
 	RoutingGenerator rg{dev};
 	rg.generateRoutes();
 
-//	std::ofstream echowires("wires.echo");
-//	for (auto &wire : dev.wires)
-//	{
-//		echowires << fmt::format("{}\n", wire->getName(dev));
-//	}
-//	echowires.close();
+	// std::ofstream echowires("wires.echo");
+	// for (auto &wire : dev.wires)
+	// {
+	// 	echowires << fmt::format("{}\n", wire->getName(dev));
+	// }
+	// echowires.close();
 
-	//	std::ofstream echoswitch8("iswitch8.echo");
-	//	for(auto& pip : dev.pips) {
-	//		echoswitch8 << fmt::format("{} -> {}\n",pip->inputs[0]->getName(dev),pip->outputs[0]->getName(dev));
-	//	}
-	//	echoswitch8.close();
+	// std::ofstream echoswitch8("iswitch8.echo");
+	// for (auto &pip : dev.pips)
+	// {
+	// 	echoswitch8 << fmt::format("{} -> {}\n", pip->inputs[0]->getName(dev), pip->outputs[0]->getName(dev));
+	// }
+	// echoswitch8.close();
 
 	std::unordered_map<vec2, GridCell> wbl;
 	for (uint32_t i = 0; i < dev.dims.x; i++)

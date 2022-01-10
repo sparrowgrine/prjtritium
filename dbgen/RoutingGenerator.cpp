@@ -5,6 +5,7 @@
 #include "RoutingGenerator.h"
 
 #include <fmt/core.h>
+
 #include <iostream>
 
 namespace tritium
@@ -90,7 +91,7 @@ namespace tritium
 
 			for (int i = 0; i < 20; i++)
 			{
-				make_alias(*frontWires[i], *frontWires[39-i]);
+				make_alias(*frontWires[i], *frontWires[39 - i]);
 			}
 
 			for (int i = 0; i < y + 1; i++)
@@ -98,7 +99,6 @@ namespace tritium
 				trackIndex.next();
 				trackIndex.next();
 			}
-
 
 			for (uint32_t line = 21; line < dev.dims.x; line++)
 			{
@@ -109,13 +109,12 @@ namespace tritium
 			std::array<Wire *, 38> rearWires{};
 			std::array<Wire *, 40> endWires{};
 
-
 			for (uint32_t line = dev.dims.x - 19; line < dev.dims.x; line++)
 			{
 				auto &e{make_wire(WT::LONG, WD::EAST, {line, y}, {dev.dims.x - 1, y}, trackIndex.next(), 10)};
-				rearWires[line-59] = &e;
+				rearWires[line - 59] = &e;
 				auto &w{make_wire(WT::LONG, WD::WEST, {dev.dims.x - 1, y}, {line, y}, trackIndex.next(), 11)};
-				rearWires[line-40] = &w;
+				rearWires[line - 40] = &w;
 			}
 
 			trackIndex.track  = 8;
@@ -124,23 +123,27 @@ namespace tritium
 
 			for (uint32_t i = 0; i < 20; i++)
 			{
-				auto &e{make_wire(WT::LONG, WD::EAST, {dev.dims.x, y}, {dev.dims.x, y}, trackIndex.next(), switchIndex.next())};
-				endWires[e.track-8] = &e;
-				auto &w{make_wire(WT::LONG, WD::WEST, {dev.dims.x, y}, {dev.dims.x, y}, trackIndex.next(), switchIndex.next())};
-				endWires[w.track-8] = &w;
+				auto &e{make_wire(
+				    WT::LONG, WD::EAST, {dev.dims.x, y}, {dev.dims.x, y}, trackIndex.next(), switchIndex.next())};
+				endWires[e.track - 8] = &e;
+				auto &w{make_wire(
+				    WT::LONG, WD::WEST, {dev.dims.x, y}, {dev.dims.x, y}, trackIndex.next(), switchIndex.next())};
+				endWires[w.track - 8] = &w;
 			}
 
-			for(auto wire : rearWires) {
-				if((wire->track & 1) == 0)
-					make_alias(*wire,*endWires[wire->track-8]);
+			for (auto wire : rearWires)
+			{
+				if ((wire->track & 1) == 0)
+					make_alias(*wire, *endWires[wire->track - 8]);
 				else
-					make_alias(*endWires[wire->track-8],*wire);
+					make_alias(*endWires[wire->track - 8], *wire);
 			}
 
 			ltrack_index aliasIdx{39};
-			aliasIdx.next(4*y);
-			for(int i = 0; i < 40; i+=2) {
-                make_alias(*endWires[i],*endWires[aliasIdx.next(-2)-8]);
+			aliasIdx.next(4 * y);
+			for (int i = 0; i < 40; i += 2)
+			{
+				make_alias(*endWires[i], *endWires[aliasIdx.next(-2) - 8]);
 			}
 		}
 	}
@@ -154,28 +157,27 @@ namespace tritium
 			switchIndex.next(-2 * x + 2);
 			uint32_t firstwire = 21 - (x % 20);
 
-			std::array<Wire *,40> frontWires{};
-			std::array<Wire *,40> frontWiresByTrack{};
-
+			std::array<Wire *, 40> frontWires{};
+			std::array<Wire *, 40> frontWiresByTrack{};
 
 			for (uint32_t line = firstwire; line <= 20; line++)
 			{
 				auto &n{make_wire(WT::LONG, WD::NORTH, {x, 1}, {x, line}, trackIndex.next(), switchIndex.next())};
-				frontWires[line-1] = &n;
-				frontWiresByTrack[n.track-8] = &n;
+				frontWires[line - 1]           = &n;
+				frontWiresByTrack[n.track - 8] = &n;
 				auto &s{make_wire(WT::LONG, WD::SOUTH, {x, line}, {x, 1}, trackIndex.next(), switchIndex.next())};
-				frontWires[line+19] = &s;
-				frontWiresByTrack[s.track-8] = &s;
+				frontWires[line + 19]          = &s;
+				frontWiresByTrack[s.track - 8] = &s;
 			}
 
 			for (uint32_t line = 1; line < firstwire; line++)
 			{
 				auto &n{make_wire(WT::LONG, WD::NORTH, {x, 1}, {x, line}, trackIndex.next(), switchIndex.next())};
-				frontWires[line-1] = &n;
-				frontWiresByTrack[n.track-8] = &n;
+				frontWires[line - 1]           = &n;
+				frontWiresByTrack[n.track - 8] = &n;
 				auto &s{make_wire(WT::LONG, WD::SOUTH, {x, line}, {x, 1}, trackIndex.next(), switchIndex.next())};
-				frontWires[line+19] = &s;
-				frontWiresByTrack[s.track-8] = &s;
+				frontWires[line + 19]          = &s;
+				frontWiresByTrack[s.track - 8] = &s;
 			}
 
 			for (int i = 0; i < x; i++)
@@ -184,52 +186,54 @@ namespace tritium
 				trackIndex.next();
 			}
 
-			for (uint32_t line = 21; line < dev.dims.y-1; line++)
+			for (uint32_t line = 21; line < dev.dims.y - 1; line++)
 			{
 				make_wire(WT::LONG, WD::NORTH, {x, line - 19}, {x, line}, trackIndex.next(), 8);
 				make_wire(WT::LONG, WD::SOUTH, {x, line}, {x, line - 19}, trackIndex.next(), 9);
 			}
 
-			std::array<Wire*, 40> rearWires{};
+			std::array<Wire *, 40> rearWires{};
 
 			for (uint32_t line = dev.dims.y - 20; line < dev.dims.y; line++)
 			{
 				auto &n{make_wire(WT::LONG, WD::NORTH, {x, line}, {x, dev.dims.y - 1}, trackIndex.next(), 8)};
-				rearWires[line-123] = &n;
+				rearWires[line - 123] = &n;
 				auto &s{make_wire(WT::LONG, WD::SOUTH, {x, dev.dims.y - 1}, {x, line}, trackIndex.next(), 9)};
-				rearWires[line-143] = &s;
+				rearWires[line - 143] = &s;
 			}
 
-			for(int i = 0; i < 20; i++) {
-				make_alias(*rearWires[39-i],*rearWires[i]);
+			for (int i = 0; i < 20; i++)
+			{
+				make_alias(*rearWires[39 - i], *rearWires[i]);
 			}
-
 
 			trackIndex.track  = 8;
 			switchIndex.track = 8;
 			switchIndex.next(48 - 2 * ((x + 2) % 20));
 
-	        std::array<Wire *, 40> startWires{};
+			std::array<Wire *, 40> startWires{};
 
 			for (uint32_t i = 0; i < 20; i++)
 			{
 				auto &n{make_wire(WT::LONG, WD::NORTH, {x, 0}, {x, 0}, trackIndex.next(), switchIndex.next())};
-				startWires[n.track-8] = &n;
+				startWires[n.track - 8] = &n;
 				auto &s{make_wire(WT::LONG, WD::SOUTH, {x, 0}, {x, 0}, trackIndex.next(), switchIndex.next())};
-				startWires[s.track-8] = &s;
+				startWires[s.track - 8] = &s;
 			}
 
-			for(auto wire : frontWires) {
-				if(wire->end.y == 20 || wire->start.y == 20) continue;
-				if((wire->track & 1) == 1)
-					make_alias(*wire,*startWires[wire->track-8]);
+			for (auto wire : frontWires)
+			{
+				if (wire->end.y == 20 || wire->start.y == 20) continue;
+				if ((wire->track & 1) == 1)
+					make_alias(*wire, *startWires[wire->track - 8]);
 				else
-					make_alias(*startWires[wire->track-8],*wire);
+					make_alias(*startWires[wire->track - 8], *wire);
 			}
 			ltrack_index aliasIdx{42};
-			aliasIdx.next(4*x);
-			for(int i = 1; i < 40; i+=2) {
-				make_alias(*startWires[i],*startWires[aliasIdx.next(-2)-8]);
+			aliasIdx.next(4 * x);
+			for (int i = 1; i < 40; i += 2)
+			{
+				make_alias(*startWires[i], *startWires[aliasIdx.next(-2) - 8]);
 			}
 		}
 	}
@@ -461,9 +465,9 @@ namespace tritium
 		wire.track = track;
 		wire.dir   = dir;
 		wire.type  = type;
-		//TODO: Figure out timing constant interaction so we can use `*_RMETAL` and `*_CMETAL`.
-//		wire.R = start.dist(end);
-//		wire.C = start.dist(end);
+		// TODO: Figure out timing constant interaction so we can use `*_RMETAL` and `*_CMETAL`.
+		// wire.R = start.dist(end);
+		// wire.C = start.dist(end);
 		switch (type)
 		{
 			case WT::INTERNAL: wire.name.push_back(dev.id("INT")); break;
@@ -520,9 +524,9 @@ namespace tritium
 	tritium::Pip &tritium::RoutingGenerator::make_alias(Wire &a, Wire &b)
 	{
 		vec2 loc{a.end};
-		//		std::cout << fmt::format("Aliasing wires {} and {}.\n", a.getName(dev), b.getName(dev));
-		//		std::cout << fmt::format("Wire A ptrack: {}\n",a.getPTrackAt(a.end));
-		//		std::cout << fmt::format("Wire B ptrack: {}\n",b.getPTrackAt(b.start));
+		// std::cout << fmt::format("Aliasing wires {} and {}.\n", a.getName(dev), b.getName(dev));
+		// std::cout << fmt::format("Wire A ptrack: {}\n", a.getPTrackAt(a.end));
+		// std::cout << fmt::format("Wire B ptrack: {}\n", b.getPTrackAt(b.start));
 		auto &pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
 		dev.pips[0];
 		pip.name.push_back(dev.id("ALIAS"));

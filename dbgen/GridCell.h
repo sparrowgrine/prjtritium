@@ -8,6 +8,7 @@
 #include "types.h"
 
 #include <array>
+
 /*
  * Each GridCell represents the available horizontal/vertical wires at a specific location.
  * These routes are allocated as follows:

@@ -3,6 +3,7 @@
 //
 
 #include "GBUFCTRLGenerator.h"
+
 void tritium::GBUFCTRLGenerator::generate()
 {
 	auto &i0{make_pin("I0", BelPin::PinType::INPUT)};

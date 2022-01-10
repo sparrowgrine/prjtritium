@@ -3,6 +3,7 @@
 //
 
 #include "GBUFGenerator.h"
+
 void tritium::GBUFGenerator::generate()
 {
 	auto &i0{make_pin("I0", BelPin::PinType::INPUT)};

@@ -7,8 +7,9 @@
 
 #include "cista.h"
 
-#include <utility>
 #include <fmt/core.h>
+
+#include <utility>
 
 namespace data = cista::offset;
 
@@ -41,7 +42,8 @@ namespace tritium
 	MACRO(EFL, 5)                                                                                                     \
 	MACRO(EFT, 6)                                                                                                     \
 	MACRO(MEM, 7)                                                                                                     \
-	MACRO(MULT, 8)
+	MACRO(MULT, 8)                                                                                                    \
+	MACRO(CMUX, 9)
 
 	struct Bel
 	{
@@ -94,7 +96,7 @@ namespace tritium
 		uint32_t sbi;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sources;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sinks;
-        [[nodiscard]] bool isVertical() const;
+		[[nodiscard]] bool isVertical() const;
 		[[nodiscard]] bool isHorizontal() const;
 		std::string getName(Device &dev);
 		[[nodiscard]] uint32_t getPTrackAt(vec2 loc) const;
@@ -149,26 +151,25 @@ struct std::hash<tritium::vec2>
 };
 
 template<>
-struct fmt::formatter<tritium::vec2> {
+struct fmt::formatter<tritium::vec2>
+{
 	template<typename ParseContext>
-	constexpr auto parse(ParseContext& ctx);
+	constexpr auto parse(ParseContext &ctx);
 
 	template<typename FormatContext>
-	auto format(tritium::vec2 const& vec2, FormatContext& ctx);
+	auto format(tritium::vec2 const &vec2, FormatContext &ctx);
 };
 
-
 template<typename ParseContext>
-constexpr auto fmt::formatter<tritium::vec2>::parse(ParseContext& ctx)
+constexpr auto fmt::formatter<tritium::vec2>::parse(ParseContext &ctx)
 {
 	return ctx.begin();
 }
 
 template<typename FormatContext>
-auto fmt::formatter<tritium::vec2>::format(tritium::vec2 const& vec2, FormatContext& ctx)
+auto fmt::formatter<tritium::vec2>::format(tritium::vec2 const &vec2, FormatContext &ctx)
 {
 	return fmt::format_to(ctx.out(), "{{{},{}}}", vec2.x, vec2.y);
 }
-
 
 #endif // LIBTRITIUM_TYPES_H

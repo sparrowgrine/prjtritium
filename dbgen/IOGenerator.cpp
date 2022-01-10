@@ -3,6 +3,7 @@
 //
 
 #include "IOGenerator.h"
+
 void tritium::IOGenerator::generate()
 {
 	auto &outpad{make_pin("OPAD", BelPin::PinType::INPUT)};
