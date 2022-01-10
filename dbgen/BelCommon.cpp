@@ -22,6 +22,7 @@ tritium::Pip &tritium::BelCommon::make_pip(const data::string &name, tritium::ve
 	pip.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
 	pip.name.push_back(dev.id(name));
 	pip.loc = loc;
+	pip.isAlias = false;
 	return pip;
 }
 
@@ -32,7 +33,7 @@ tritium::Wire &tritium::BelCommon::make_intwire(const data::string &name, tritiu
 	wire.name.push_back(dev.id(bel.typestr()));
 	wire.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
 	wire.name.push_back(dev.id(name));
-	wire.type  = Wire::WireType::INTERNAL;
+	wire.type  = Wire::Type::INTERNAL;
 	wire.start = loc;
 	wire.end   = loc;
 	return wire;

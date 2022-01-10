@@ -5,11 +5,10 @@
 #ifndef LIBTRITIUM_TYPES_H
 #define LIBTRITIUM_TYPES_H
 
-#include <utility>
-
 #include "cista.h"
 
 #include <utility>
+#include <fmt/core.h>
 
 namespace data = cista::offset;
 
@@ -27,8 +26,8 @@ namespace tritium
 
 		vec2 operator+(vec2 o) const { return {x + o.x, y + o.y}; }
 		vec2 operator-(vec2 o) const { return {x - o.x, y - o.y}; }
-
 		bool operator==(vec2 o) const { return x == o.x && y == o.y; }
+		[[nodiscard]] uint32_t dist(vec2 o) const;
 
 		size_t hash() const { return cista::hash_combine(x, y); }
 	};
@@ -74,17 +73,19 @@ namespace tritium
 			WEST  = 4
 		};
 
-		enum class WireType : uint32_t
+		enum class Type : uint32_t
 		{
-			LOCAL    = 0,
-			GLOBAL   = 1,
-			INTERNAL = 2,
-			INTERBEL = 3
+			INTERNAL = 0,
+			INTERBEL = 1,
+			SHORT    = 2,
+			LONG     = 3,
+			SEMICOL  = 4,
+			GLOBAL   = 5,
 		};
 
 		data::vector<uint32_t> name;
 		Direction dir;
-		WireType type;
+		Type type;
 		vec2 start;
 		vec2 end;
 		float R;
@@ -93,8 +94,10 @@ namespace tritium
 		uint32_t sbi;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sources;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sinks;
-
+        [[nodiscard]] bool isVertical() const;
+		[[nodiscard]] bool isHorizontal() const;
 		std::string getName(Device &dev);
+		[[nodiscard]] uint32_t getPTrackAt(vec2 loc) const;
 	};
 
 	struct Pip
@@ -103,6 +106,7 @@ namespace tritium
 		vec2 loc;
 		data::vector<data::ptr<Wire>> inputs;
 		data::vector<data::ptr<Wire>> outputs;
+		bool isAlias;
 	};
 
 	struct BelPin
@@ -143,5 +147,28 @@ struct std::hash<tritium::vec2>
 {
 	size_t operator()(const tritium::vec2 &v) const noexcept { return cista::hash_combine(v.x, v.y); };
 };
+
+template<>
+struct fmt::formatter<tritium::vec2> {
+	template<typename ParseContext>
+	constexpr auto parse(ParseContext& ctx);
+
+	template<typename FormatContext>
+	auto format(tritium::vec2 const& vec2, FormatContext& ctx);
+};
+
+
+template<typename ParseContext>
+constexpr auto fmt::formatter<tritium::vec2>::parse(ParseContext& ctx)
+{
+	return ctx.begin();
+}
+
+template<typename FormatContext>
+auto fmt::formatter<tritium::vec2>::format(tritium::vec2 const& vec2, FormatContext& ctx)
+{
+	return fmt::format_to(ctx.out(), "{{{},{}}}", vec2.x, vec2.y);
+}
+
 
 #endif // LIBTRITIUM_TYPES_H

@@ -22,23 +22,6 @@
 namespace fs = std::filesystem;
 using namespace tritium;
 
-uint32_t vpr_to_phy_track(uint32_t vtrack, uint32_t x, uint32_t y, bool isXRoute, bool isLongRoute)
-{
-	const uint32_t segNum{isXRoute ? x : y};
-	const uint32_t chanNum{isXRoute ? y : x};
-	const uint32_t group_size{isLongRoute ? 40U : 8U};
-	const uint32_t group_start{isLongRoute ? 8U : 0U};
-
-	const uint32_t dir{2U};
-
-	const uint32_t idek{(((segNum - 1U) + (chanNum - (isXRoute ? 0U : 1U))) * dir) % group_size};
-	const uint32_t group_size_over_dir{group_size / dir};
-	const uint32_t vtrack_sub_group_start{vtrack - group_start};
-
-	return (dir * (((group_size_over_dir - (idek / dir)) + (vtrack_sub_group_start / dir)) % group_size_over_dir)) +
-	       group_start + (vtrack_sub_group_start % dir);
-}
-
 static Bel::Type type_for_str(std::string_view str)
 {
 	using namespace std::string_view_literals;
@@ -73,7 +56,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 			case tritium::Wire::Direction::NORTH:
 				for (uint32_t i = wire->start.y; i <= wire->end.y; i++)
 				{
-					const uint32_t track{vpr_to_phy_track(wire->track, wire->start.x, i, false, wire->track > 7)};
+					const uint32_t track{wire->getPTrackAt(vec2{wire->start.x, i})};
 					wbl[vec2{wire->start.x, i}].ytracks[track] = wire.get();
 				}
 				break;
@@ -81,7 +64,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 			case tritium::Wire::Direction::SOUTH:
 				for (uint32_t i = wire->end.y; i <= wire->start.y; i++)
 				{
-					const uint32_t track{vpr_to_phy_track(wire->track, wire->start.x, i, false, wire->track > 7)};
+					const uint32_t track{wire->getPTrackAt(vec2{wire->start.x, i})};
 					wbl[vec2{wire->start.x, i}].ytracks[track] = wire.get();
 				}
 				break;
@@ -89,7 +72,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 			case tritium::Wire::Direction::EAST:
 				for (uint32_t i = wire->start.x; i <= wire->end.x; i++)
 				{
-					const uint32_t track{vpr_to_phy_track(wire->track, i, wire->start.y, true, wire->track > 7)};
+					const uint32_t track{wire->getPTrackAt(vec2{i, wire->start.y})};
 					wbl[vec2{i, wire->start.y}].xtracks[track] = wire.get();
 				}
 				break;
@@ -97,7 +80,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 			case tritium::Wire::Direction::WEST:
 				for (uint32_t i = wire->end.x; i <= wire->start.x; i++)
 				{
-					const uint32_t track{vpr_to_phy_track(wire->track, i, wire->start.y, true, wire->track > 7)};
+					const uint32_t track{wire->getPTrackAt(vec2{i, wire->start.y})};
 					wbl[vec2{i, wire->start.y}].xtracks[track] = wire.get();
 				}
 				break;
@@ -159,6 +142,19 @@ int main(int argc, char **argv)
 
 	RoutingGenerator rg{dev};
 	rg.generateRoutes();
+
+//	std::ofstream echowires("wires.echo");
+//	for (auto &wire : dev.wires)
+//	{
+//		echowires << fmt::format("{}\n", wire->getName(dev));
+//	}
+//	echowires.close();
+
+	//	std::ofstream echoswitch8("iswitch8.echo");
+	//	for(auto& pip : dev.pips) {
+	//		echoswitch8 << fmt::format("{} -> {}\n",pip->inputs[0]->getName(dev),pip->outputs[0]->getName(dev));
+	//	}
+	//	echoswitch8.close();
 
 	std::unordered_map<vec2, GridCell> wbl;
 	for (uint32_t i = 0; i < dev.dims.x; i++)
