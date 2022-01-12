@@ -66,7 +66,7 @@ namespace tritium
 
 	struct Wire
 	{
-		enum class Direction : uint32_t
+		enum class Direction : int32_t
 		{
 			UNDEF = 0,
 			NORTH = 1,
@@ -75,7 +75,7 @@ namespace tritium
 			WEST  = 4
 		};
 
-		enum class Type : uint32_t
+		enum class Type : int32_t
 		{
 			INTERNAL = 0,
 			INTERBEL = 1,
@@ -100,6 +100,8 @@ namespace tritium
 		[[nodiscard]] bool isHorizontal() const;
 		std::string getName(Device &dev);
 		[[nodiscard]] uint32_t getPTrackAt(vec2 loc) const;
+		static uint32_t ptrack_to_vtrack(uint32_t p_track, Type type, Direction dir, vec2 loc);
+		static uint32_t vtrack_to_ptrack(uint32_t p_track, Type type, Direction dir, vec2 loc);
 	};
 
 	struct Pip

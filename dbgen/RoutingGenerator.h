@@ -5,6 +5,7 @@
 #ifndef LIBTRITIUM_ROUTINGGENERATOR_H
 #define LIBTRITIUM_ROUTINGGENERATOR_H
 
+#include "GridCell.h"
 #include "types.h"
 
 namespace tritium
@@ -17,6 +18,10 @@ namespace tritium
 		RoutingGenerator(Device &dev) : dev(dev) {}
 
 		void generateRoutes();
+		void generateSwitchboxes(std::unordered_map<vec2, GridCell> &wbl);
+		void applySwitchCapacitances();
+
+	private:
 		void generate_horz_lwires();
 		void generate_vert_lwires();
 		void generate_horz_swires();

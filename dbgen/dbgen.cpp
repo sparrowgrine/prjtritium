@@ -151,12 +151,12 @@ int main(int argc, char **argv)
 	RoutingGenerator rg{dev};
 	rg.generateRoutes();
 
-	// std::ofstream echowires("wires.echo");
-	// for (auto &wire : dev.wires)
-	// {
-	// 	echowires << fmt::format("{}\n", wire->getName(dev));
-	// }
-	// echowires.close();
+	//	std::ofstream echowires("wires.echo");
+	//	for (auto &wire : dev.wires)
+	//	{
+	//		echowires << fmt::format("{}\n", wire->getName(dev));
+	//	}
+	//	echowires.close();
 
 	// std::ofstream echoswitch8("iswitch8.echo");
 	// for (auto &pip : dev.pips)
@@ -175,14 +175,31 @@ int main(int argc, char **argv)
 	}
 
 	gen_wbl(wbl, dev);
+	rg.generateSwitchboxes(wbl);
+
+	//	std::ofstream echosb("sb.echo");
+	//	for (auto &pip : dev.pips)
+	//	{
+	//		if (pip->name[0] != dev.id("SBOX")) continue;
+	//		echosb << fmt::format("{} -> {}\n", pip->inputs[0]->getName(dev), pip->outputs[0]->getName(dev));
+	//		echosb << fmt::format("{} -> {}\n", pip->inputs[0]->getName(dev), pip->outputs[1]->getName(dev));
+	//		echosb << fmt::format("{} -> {}\n", pip->inputs[0]->getName(dev), pip->outputs[2]->getName(dev));
+	//		echosb << fmt::format("{} -> {}\n", pip->inputs[0]->getName(dev), pip->outputs[3]->getName(dev));
+	//	}
+	//	echosb.close();
+
+	std::cout << fmt::format(
+	    "Successfully generated routing, with {} wires and {} aliases.\n", dev.wires.size(), dev.pips.size());
 
 	parse_beldb(dev, wbl, fs::path{argc > 1 ? argv[1] : "../beldb"} / "oph_77x162_b3_d1.beldb");
-
+	rg.applySwitchCapacitances();
 	cista::file chipdb{"oph_77x162_b3_d1_C3.chipdb", "w+"};
 
 	std::cout << "awoo\n";
 
 	cista::serialize<cista::mode::WITH_VERSION>(chipdb, dev);
+	auto devfile = cista::mmap("oph_77x162_b3_d1_C3.chipdb", cista::mmap::protection::READ);
+	auto devload{cista::deserialize<tritium::Device>(devfile)};
 
 	std::cout << "meow\n";
 

@@ -4,7 +4,4 @@
 
 #include "MULTGenerator.h"
 
-void tritium::MULTGenerator::generate()
-{
-
-}
+void tritium::MULTGenerator::generate() {}

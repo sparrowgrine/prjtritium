@@ -4,7 +4,4 @@
 
 #include "MEMGenerator.h"
 
-void tritium::MEMGenerator::generate()
-{
-
-}
+void tritium::MEMGenerator::generate() {}

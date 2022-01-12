@@ -22,8 +22,6 @@ namespace tritium
 	public:
 		BelCommon(Device &dev, std::unordered_map<vec2, GridCell> &wbl, Bel &bel) : dev(dev), wbl(wbl), bel(bel) {}
 
-		virtual void generate();
-
 	protected:
 		enum class IMUXIndex : uint8_t
 		{
@@ -51,14 +49,15 @@ namespace tritium
 		template<typename T, typename U>
 		void link_termini(T &src, U &dst)
 		{
-			auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{}))};
+			auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{
+			    .type  = Wire::Type::INTERNAL,
+			    .start = src.loc,
+			    .end   = dst.loc,
+			}))};
 			wire.name.push_back(dev.id("INT"));
 			wire.name.push_back(dev.id(bel.typestr()));
 			wire.name.push_back(dev.id(fmt::format("X{}Y{}", src.loc.x, src.loc.y)));
 			wire.name.push_back(dev.id(fmt::format("X{}Y{}", dst.loc.x, dst.loc.y)));
-			wire.type  = Wire::Type::INTERNAL;
-			wire.start = src.loc;
-			wire.end   = dst.loc;
 			link_to_wire(src, wire);
 			link_wire_to(wire, dst);
 		}

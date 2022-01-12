@@ -13,6 +13,14 @@ namespace tritium
 	using WD = Wire::Direction;
 	using WT = Wire::Type;
 
+	template<typename Enumeration>
+	auto as_integer(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
+	{
+		return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+	}
+	vec2 operator""_x(unsigned long long int x) { return vec2{static_cast<uint32_t>(x), 0}; }
+	vec2 operator""_y(unsigned long long int y) { return vec2{0, static_cast<uint32_t>(y)}; }
+
 	void RoutingGenerator::generateRoutes()
 	{
 		generate_horz_lwires();
@@ -27,17 +35,24 @@ namespace tritium
 	{
 		uint32_t track{0};
 
-		uint32_t next(int32_t incr = 1)
+		uint32_t offset(int32_t off)
 		{
-			uint32_t oldtrack = track;
-			if (incr < 0)
+			if (off == 0)
+				return track;
+			else if (off < 0)
 			{
-				track = (((track - 8) + ((2147483640 + incr) % 40)) % 40) + 8;
+				return (((track - 8) + ((2147483640 + off) % 40)) % 40) + 8;
 			}
 			else
 			{
-				track = (((track - 8) + incr) % 40) + 8;
+				return (((track - 8) + off) % 40) + 8;
 			}
+		}
+
+		uint32_t next(int32_t incr = 1)
+		{
+			uint32_t oldtrack = track;
+			track             = offset(incr);
 			return oldtrack;
 		}
 	};
@@ -453,21 +468,22 @@ namespace tritium
 		}
 	}
 
-	void RoutingGenerator::generate_global_clks() {}
+	void RoutingGenerator::generate_global_clks()
+	{
+		for (int i = 0; i < 16; i++) make_wire(WT::GLOBAL, WD::UNDEF, {0, 0}, dev.dims, 53 + i, 53 + i);
+	}
 
 	Wire &RoutingGenerator::make_wire(
 	    Wire::Type type, Wire::Direction dir, vec2 start, vec2 end, uint32_t track, uint32_t sbi)
 	{
-		auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{}))};
-		wire.start = start;
-		wire.end   = end;
-		wire.sbi   = sbi;
-		wire.track = track;
-		wire.dir   = dir;
-		wire.type  = type;
-		// TODO: Figure out timing constant interaction so we can use `*_RMETAL` and `*_CMETAL`.
-		// wire.R = start.dist(end);
-		// wire.C = start.dist(end);
+		auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{
+		    .dir   = dir,
+		    .type  = type,
+		    .start = start,
+		    .end   = end,
+		    .track = track,
+		    .sbi   = sbi,
+		}))};
 		switch (type)
 		{
 			case WT::INTERNAL: wire.name.push_back(dev.id("INT")); break;
@@ -477,12 +493,16 @@ namespace tritium
 					wire.name.push_back(dev.id("HS"));
 				else
 					wire.name.push_back(dev.id("VS"));
+				wire.R = start.dist(end) * 118.7F;    //;)
+				wire.C = start.dist(end) * 1.13e-15F; //: 3c
 				break;
 			case WT::LONG:
 				if (wire.isHorizontal())
 					wire.name.push_back(dev.id("HL"));
 				else
 					wire.name.push_back(dev.id("VL"));
+				wire.R = start.dist(end) * 180.0F;    //;)
+				wire.C = start.dist(end) * 2.50e-15F; //: 3c
 				break;
 			case WT::SEMICOL: wire.name.push_back(dev.id("CC")); break;
 			case WT::GLOBAL: wire.name.push_back(dev.id("GL")); break;
@@ -539,4 +559,150 @@ namespace tritium
 		pip.isAlias = true;
 		return pip;
 	}
+
+	//	UNDEF = 0,
+	//	NORTH = 1,
+	//	SOUTH = 2,
+	//	EAST  = 3,
+	//	WEST  = 4
+
+	void RoutingGenerator::generateSwitchboxes(std::unordered_map<vec2, GridCell> &wbl)
+	{
+		for (uint32_t y = 0; y < dev.dims.y; y++)
+		{
+			for (uint32_t x = 1; x <= dev.dims.x; x++)
+			{
+				vec2 cloc{x, y};
+				GridCell &gc = wbl[cloc];
+				if (y != dev.dims.y - 1)
+				{
+					for (auto wire : gc.xtracks)
+					{
+						if (wire->type != WT::LONG) continue;
+						if (wire->start == cloc)
+						{
+							if ((wire->dir == WD::WEST && wire->end.x == 1) ||
+							    (wire->end.x == dev.dims.x && wire->sbi != 11) ||
+							    (wire->dir == WD::EAST &&
+							     (wire->end.x == dev.dims.x - 1 && wire->start.dist(wire->end) < 19)))
+								continue;
+
+							ltrack_index pairIndices{wire->track};
+							auto &sb_pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
+							sb_pip.isAlias = true;
+							sb_pip.loc     = cloc;
+							sb_pip.name.push_back(dev.id("SBOX"));
+							sb_pip.name.push_back(dev.id(fmt::format("X{}Y{}", cloc.x, cloc.y)));
+							sb_pip.inputs.emplace_back(data::ptr<Wire>{wire});
+							auto wloc          = wire->dir == WD::EAST ? wire->end : wire->end - 1_x;
+							auto &wgc          = wbl[wloc].xtracks;
+							uint32_t wireIdx   = pairIndices.offset((int)WD::WEST - (int)wire->dir);
+							Wire *westNeighbor = wgc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::WEST, wloc)];
+							if (westNeighbor == nullptr)
+							{
+								std::cerr << "ERR: WestNeighbor is nullptr!!!!\n";
+								std::terminate();
+							}
+							sb_pip.outputs.emplace_back(westNeighbor);
+							auto eloc =
+							    (wire->end.x >= dev.dims.x - 1 && wire->dir == WD::WEST) ? wire->end : wire->end + 1_x;
+
+							auto &egc          = wbl[eloc].xtracks;
+							wireIdx            = pairIndices.offset((int)WD::EAST - (int)wire->dir);
+							Wire *eastNeighbor = egc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::EAST, eloc)];
+							if (eastNeighbor == nullptr)
+							{
+								std::cerr << "ERR: EastNeighbor is nullptr!!!!\n";
+								std::terminate();
+							}
+							sb_pip.outputs.emplace_back(eastNeighbor);
+							auto sloc           = wire->dir == WD::EAST ? wire->end : wire->end - 1_x;
+							auto sgc            = wbl[sloc].ytracks;
+							wireIdx             = pairIndices.offset((int)WD::SOUTH - (int)wire->dir);
+							Wire *southNeighbor = sgc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::SOUTH, sloc)];
+							if (southNeighbor == nullptr)
+							{
+								std::cerr << "ERR: SouthNeighbor is nullptr!!!!\n";
+								std::terminate();
+							}
+							sb_pip.outputs.emplace_back(southNeighbor);
+							auto nloc           = wire->dir == WD::EAST ? wire->end + 1_y : wire->end - 1_x + 1_y;
+							auto ngc            = wbl[nloc].ytracks;
+							wireIdx             = pairIndices.offset((int)WD::NORTH - (int)wire->dir);
+							Wire *northNeighbor = ngc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::NORTH, nloc)];
+							if (northNeighbor == nullptr)
+							{
+								std::cerr << "ERR: NorthNeighbor is nullptr!!!!\n";
+								std::terminate();
+							}
+							sb_pip.outputs.emplace_back(northNeighbor);
+						}
+					}
+				}
+				for (auto wire : gc.ytracks)
+				{
+					if (wire == nullptr) continue;
+					if (wire->track > 48) continue;
+					if (wire->type != WT::LONG) continue;
+					if (wire->start == cloc)
+					{
+						if ((wire->dir == WD::SOUTH && wire->end.y == 1 && wire->start.dist(wire->end) < 19) ||
+						    (wire->start.y == 0 && wire->end.y == 0 && wire->sbi != 10) ||
+						    (wire->dir == WD::SOUTH && wire->start.y == 162 && wire->sbi != 9) ||
+						    (wire->dir == WD::NORTH && wire->end.y == dev.dims.y - 1))
+							continue;
+						ltrack_index pairIndices{wire->track};
+						auto &sb_pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
+						sb_pip.isAlias = true;
+						sb_pip.loc     = cloc;
+						sb_pip.name.push_back(dev.id("SBOX"));
+						sb_pip.name.push_back(dev.id(fmt::format("X{}Y{}", cloc.x, cloc.y)));
+						sb_pip.inputs.emplace_back(data::ptr<Wire>{wire});
+						auto wloc          = wire->dir == WD::SOUTH ? wire->end - 1_y : wire->end;
+						auto &wgc          = wbl[wloc].xtracks;
+						uint32_t wireIdx   = pairIndices.offset((int)WD::WEST - (int)wire->dir);
+						Wire *westNeighbor = wgc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::WEST, wloc)];
+						if (westNeighbor == nullptr)
+						{
+							std::cerr << "ERR: WestNeighbor is nullptr!!!!\n";
+							std::terminate();
+						}
+						sb_pip.outputs.emplace_back(westNeighbor);
+						auto eloc          = wire->dir == WD::SOUTH ? wire->end - 1_y + 1_x : wire->end + 1_x;
+						auto &egc          = wbl[eloc].xtracks;
+						wireIdx            = pairIndices.offset((int)WD::EAST - (int)wire->dir);
+						Wire *eastNeighbor = egc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::EAST, eloc)];
+						if (eastNeighbor == nullptr)
+						{
+							std::cerr << "ERR: EastNeighbor is nullptr!!!!\n";
+							std::terminate();
+						}
+						sb_pip.outputs.emplace_back(eastNeighbor);
+						auto sloc           = wire->dir == WD::SOUTH ? wire->end - 1_y : wire->end;
+						auto sgc            = wbl[sloc].ytracks;
+						wireIdx             = pairIndices.offset((int)WD::SOUTH - (int)wire->dir);
+						Wire *southNeighbor = sgc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::SOUTH, sloc)];
+						if (southNeighbor == nullptr)
+						{
+							std::cerr << "ERR: SouthNeighbor is nullptr!!!!\n";
+							std::terminate();
+						}
+						sb_pip.outputs.emplace_back(southNeighbor);
+						auto nloc           = y == dev.dims.y - 1 ? wire->end : wire->end + 1_y;
+						auto ngc            = wbl[nloc].ytracks;
+						wireIdx             = pairIndices.offset((int)WD::NORTH - (int)wire->dir);
+						Wire *northNeighbor = ngc[Wire::vtrack_to_ptrack(wireIdx, WT::LONG, WD::NORTH, nloc)];
+						if (northNeighbor == nullptr)
+						{
+							std::cerr << "ERR: NorthNeighbor is nullptr!!!!\n";
+							std::terminate();
+						}
+						sb_pip.outputs.emplace_back(northNeighbor);
+					}
+				}
+			}
+		}
+	}
+
+	void RoutingGenerator::applySwitchCapacitances() {}
 }

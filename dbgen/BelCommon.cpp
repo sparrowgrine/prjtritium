@@ -9,11 +9,6 @@
 #include <iostream>
 #include <span>
 
-void tritium::BelCommon::generate()
-{
-	throw "Cannot generate an undifferentiated cell!";
-}
-
 tritium::Pip &tritium::BelCommon::make_pip(const data::string &name, tritium::vec2 loc)
 {
 	auto &pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
@@ -28,14 +23,15 @@ tritium::Pip &tritium::BelCommon::make_pip(const data::string &name, tritium::ve
 
 tritium::Wire &tritium::BelCommon::make_intwire(const data::string &name, tritium::vec2 loc)
 {
-	auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{}))};
+	auto &wire{*dev.wires.emplace_back(data::make_unique<Wire>(Wire{
+	    .type  = Wire::Type::INTERNAL,
+	    .start = loc,
+	    .end   = loc,
+	}))};
 	wire.name.push_back(dev.id("INT"));
 	wire.name.push_back(dev.id(bel.typestr()));
 	wire.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
 	wire.name.push_back(dev.id(name));
-	wire.type  = Wire::Type::INTERNAL;
-	wire.start = loc;
-	wire.end   = loc;
 	return wire;
 }
 
@@ -191,94 +187,106 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 	{
 		case IMUXIndex::IMUXA:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {2, 5, 8, 16, 23, 32, 39, 47})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
+			GridCell ygc{wbl[imux.loc]};
 			for (auto yidx : {4, 7, 11, 22, 33, 38})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
 		case IMUXIndex::IMUXB:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {4, 10, 15, 26, 29, 42, 45})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
+			GridCell ygc{wbl[imux.loc]};
 			for (auto yidx : {5, 6, 8, 19, 20, 35, 36})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
 		case IMUXIndex::IMUXC:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {0, 7, 13, 24, 31, 40})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
+			GridCell ygc{wbl[imux.loc]};
 			for (auto yidx : {1, 2, 9, 14, 25, 30, 41, 46})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
 		case IMUXIndex::IMUXD:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {1, 3, 6, 18, 21, 34, 37})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
+			GridCell ygc{wbl[imux.loc]};
 			for (auto yidx : {3, 12, 17, 27, 28, 43, 44})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
 		case IMUXIndex::IMUXCE:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {10, 13})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
-			for (auto yidx : {36, 37})
+			GridCell ygc{wbl[imux.loc]};
+			for (auto yidx : {36, 37, 49, 50, 51, 52})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
 		case IMUXIndex::IMUXSR:
 		{
-			GridCell xgc = wbl[imux.loc - vec2{0, 1}];
+			GridCell &xgc{wbl[imux.loc - vec2{0, 1}]};
 			for (auto xidx : {10, 13})
 			{
 				Wire *w = xgc.xtracks[xidx];
+				imux.inputs.emplace_back(w);
 			}
-			GridCell ygc = wbl[imux.loc];
-			for (auto yidx : {16, 17})
+			GridCell &ygc{wbl[imux.loc]};
+			for (auto yidx : {16, 17, 49, 50, 51, 52})
 			{
 				Wire *w = ygc.ytracks[yidx];
+				imux.inputs.emplace_back(w);
 			}
 		}
 		break;
 
-		case IMUXIndex::UNKNOWN: std::cerr << "ERR: Unknown IMUXIndex!!!!\n"; std::terminate();
+		default: std::cerr << "ERR: Unknown IMUXIndex!!!!\n"; std::terminate();
 	}
 }

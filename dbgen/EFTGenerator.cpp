@@ -15,11 +15,15 @@ void tritium::EFTGenerator::generate()
 	auto &imuxb{make_pip("IMUXB")};
 	auto &imuxc{make_pip("IMUXC")};
 	auto &imuxd{make_pip("IMUXD")};
+	auto &imuxce{make_pip("IMUXCE")};
+	auto &imuxsr{make_pip("IMUXSR")};
 
 	link_wires_to_imux_by_index(imuxa, BelCommon::IMUXIndex::IMUXA);
 	link_wires_to_imux_by_index(imuxb, BelCommon::IMUXIndex::IMUXB);
 	link_wires_to_imux_by_index(imuxc, BelCommon::IMUXIndex::IMUXC);
 	link_wires_to_imux_by_index(imuxd, BelCommon::IMUXIndex::IMUXD);
+	link_wires_to_imux_by_index(imuxce, BelCommon::IMUXIndex::IMUXCE);
+	link_wires_to_imux_by_index(imuxsr, BelCommon::IMUXIndex::IMUXSR);
 
 	link_termini(imuxa, l4i0);
 	link_termini(imuxb, l4i1);
@@ -41,8 +45,13 @@ void tritium::EFTGenerator::generate()
 	auto &ff_ce{make_pin("FF_CE", BelPin::PinType::INPUT)};
 	auto &ff_sr{make_pin("FF_SR", BelPin::PinType::INPUT)};
 
+	link_termini(imuxce, ff_ce);
+	link_termini(imuxsr, ff_sr);
+
 	link_termini(opin_lut, opin_mux);
 	link_termini(opin_add, opin_mux);
+
+	link_termini(opin_mux, ff_d);
 
 	auto &expmuxa{make_pip("EXPMUXA")};
 	auto &expmuxb{make_pip("EXPMUXA")};
@@ -65,12 +74,15 @@ void tritium::EFTGenerator::generate()
 	link_termini(imuxc, rtmuxew);
 	link_termini(imuxd, rtmuxns);
 	link_termini(imuxd, rtmuxew);
+	link_termini(ff_q, rtmuxns);
+	link_termini(ff_q, rtmuxew);
 
 	auto &omuxshort{make_pip("OMUXSHORT")};
 
 	link_termini(rtmuxew, omuxshort);
 	link_termini(rtmuxns, omuxshort);
 	link_termini(opin_mux, omuxshort);
+	link_termini(ff_q, omuxshort);
 
 	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::NORTH));
 	link_to_wire(omuxshort, out_swire_for_dir(Wire::Direction::EAST));

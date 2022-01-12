@@ -14,7 +14,7 @@ namespace tritium
 	public:
 		GBUFCTRLGenerator(Device &dev, std::unordered_map<vec2, GridCell> &wbl, Bel &bel) : BelCommon(dev, wbl, bel) {}
 
-		void generate() override;
+		void generate();
 	};
 }
 
