@@ -15,11 +15,10 @@ namespace tritium
 		Device &dev;
 
 	public:
-		RoutingGenerator(Device &dev) : dev(dev) {}
+		explicit RoutingGenerator(Device &dev) : dev(dev) {}
 
 		void generateRoutes();
 		void generateSwitchboxes(std::unordered_map<vec2, GridCell> &wbl);
-		void applySwitchCapacitances();
 
 	private:
 		void generate_horz_lwires();

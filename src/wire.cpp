@@ -27,6 +27,8 @@ namespace tritium
 
 	uint32_t Wire::getPTrackAt(vec2 loc) const
 	{
+		if(type == Type::SEMICOL)
+			return track;
 		switch (dir)
 		{
 			case Wire::Direction::NORTH: assert(loc.x == start.x && start.y <= loc.y && loc.y <= end.y); break;

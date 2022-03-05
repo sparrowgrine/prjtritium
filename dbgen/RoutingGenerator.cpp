@@ -13,11 +13,6 @@ namespace tritium
 	using WD = Wire::Direction;
 	using WT = Wire::Type;
 
-	template<typename Enumeration>
-	auto as_integer(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
-	{
-		return static_cast<typename std::underlying_type<Enumeration>::type>(value);
-	}
 	vec2 operator""_x(unsigned long long int x) { return vec2{static_cast<uint32_t>(x), 0}; }
 	vec2 operator""_y(unsigned long long int y) { return vec2{0, static_cast<uint32_t>(y)}; }
 
@@ -454,23 +449,26 @@ namespace tritium
 
 	void RoutingGenerator::generate_semicol_clks()
 	{
+		assert(((dev.dims.y - 3) % 80) == 0);
+		uint32_t clkspans{(dev.dims.y - 3) / 80};
 		for (uint32_t x = 0; x < dev.dims.x; x++)
 		{
-			// TODO: fix sizes to be generic
-			make_wire(WT::SEMICOL, WD::NORTH, {x, 81}, {x, 160}, 49, 49);
-			make_wire(WT::SEMICOL, WD::SOUTH, {x, 80}, {x, 1}, 49, 49);
-			make_wire(WT::SEMICOL, WD::NORTH, {x, 81}, {x, 160}, 50, 50);
-			make_wire(WT::SEMICOL, WD::SOUTH, {x, 80}, {x, 1}, 50, 50);
-			make_wire(WT::SEMICOL, WD::NORTH, {x, 81}, {x, 160}, 51, 51);
-			make_wire(WT::SEMICOL, WD::SOUTH, {x, 80}, {x, 1}, 51, 51);
-			make_wire(WT::SEMICOL, WD::NORTH, {x, 81}, {x, 160}, 52, 52);
-			make_wire(WT::SEMICOL, WD::SOUTH, {x, 80}, {x, 1}, 52, 52);
+			for (uint32_t ygroup = 0; ygroup < clkspans; ygroup++)
+			{
+				make_wire(WT::SEMICOL, WD::NORTH, {x, (ygroup * 80) + 1}, {x, (1 + ygroup) * 80 +1}, 48, 48);
+				make_wire(WT::SEMICOL, WD::NORTH, {x, (ygroup * 80) + 1}, {x, (1 + ygroup) * 80 +1}, 49, 49);
+				make_wire(WT::SEMICOL, WD::NORTH, {x, (ygroup * 80) + 1}, {x, (1 + ygroup) * 80 +1}, 50, 50);
+				make_wire(WT::SEMICOL, WD::NORTH, {x, (ygroup * 80) + 1}, {x, (1 + ygroup) * 80 +1}, 51, 51);
+			}
 		}
 	}
 
 	void RoutingGenerator::generate_global_clks()
 	{
-		for (int i = 0; i < 16; i++) make_wire(WT::GLOBAL, WD::UNDEF, {0, 0}, dev.dims, 53 + i, 53 + i);
+		for (int i = 0; i < 16; i++)
+		{
+			make_wire(WT::GLOBAL, WD::UNDEF, {0, 0}, dev.dims, 52 + i, 52 + i);
+		}
 	}
 
 	Wire &RoutingGenerator::make_wire(
@@ -484,6 +482,7 @@ namespace tritium
 		    .track = track,
 		    .sbi   = sbi,
 		}))};
+		wire.id = dev.wires.size()-1;
 		switch (type)
 		{
 			case WT::INTERNAL: wire.name.push_back(dev.id("INT")); break;
@@ -548,13 +547,13 @@ namespace tritium
 		// std::cout << fmt::format("Wire A ptrack: {}\n", a.getPTrackAt(a.end));
 		// std::cout << fmt::format("Wire B ptrack: {}\n", b.getPTrackAt(b.start));
 		auto &pip{*dev.pips.emplace_back(data::make_unique<Pip>(Pip{}))};
-		dev.pips[0];
+		pip.id = dev.pips.size()-1;
 		pip.name.push_back(dev.id("ALIAS"));
 		pip.name.push_back(dev.id(fmt::format("X{}Y{}", loc.x, loc.y)));
 		pip.name.push_back(dev.id(fmt::format("{}{}", a.isHorizontal() ? "X" : "Y", a.track)));
 		pip.name.push_back(dev.id(fmt::format("{}{}", b.isHorizontal() ? "X" : "Y", b.track)));
-		pip.inputs.emplace_back(data::ptr<Wire>{&a});
-		pip.outputs.emplace_back(data::ptr<Wire>{&b});
+		pip.src.emplace_back(data::ptr<Wire>{&a});
+		pip.dst.emplace_back(data::ptr<Wire>{&b});
 		pip.loc     = loc;
 		pip.isAlias = true;
 		return pip;
@@ -642,13 +641,12 @@ namespace tritium
 				for (auto wire : gc.ytracks)
 				{
 					if (wire == nullptr) continue;
-					if (wire->track > 48) continue;
 					if (wire->type != WT::LONG) continue;
 					if (wire->start == cloc)
 					{
 						if ((wire->dir == WD::SOUTH && wire->end.y == 1 && wire->start.dist(wire->end) < 19) ||
 						    (wire->start.y == 0 && wire->end.y == 0 && wire->sbi != 10) ||
-						    (wire->dir == WD::SOUTH && wire->start.y == 162 && wire->sbi != 9) ||
+						    (wire->dir == WD::SOUTH && wire->start.y == dev.dims.y - 1 && wire->sbi != 9) ||
 						    (wire->dir == WD::NORTH && wire->end.y == dev.dims.y - 1))
 							continue;
 						ltrack_index pairIndices{wire->track};
@@ -703,6 +701,4 @@ namespace tritium
 			}
 		}
 	}
-
-	void RoutingGenerator::applySwitchCapacitances() {}
 }

@@ -5,7 +5,7 @@
 #ifndef LIBTRITIUM_BELCOMMON_H
 #define LIBTRITIUM_BELCOMMON_H
 
-#include "GridCell.h"
+#include "../GridCell.h"
 #include "types.h"
 
 #include <fmt/core.h>
@@ -32,6 +32,15 @@ namespace tritium
 			IMUXD   = 4,
 			IMUXCE  = 5,
 			IMUXSR  = 6
+		};
+		enum class OMUXIndex : uint8_t
+		{
+			UNKNOWN   = 0,
+			OMUXSHORT = 1,
+			OMUXNORTH = 2,
+			OMUXSOUTH = 3,
+			OMUXEAST  = 4,
+			OMUXWEST  = 5,
 		};
 
 		Pip &make_pip(const data::string &name, vec2 loc);
@@ -69,6 +78,7 @@ namespace tritium
 		static void link_to_wire(BelPin &src, Wire &wire);
 
 		void link_wires_to_imux_by_index(Pip &imux, IMUXIndex idx);
+		void link_lwires_to_omux(Pip &omux);
 
 		Wire &out_lwire_for_dir(Wire::Direction dir, vec2 loc);
 		inline Wire &out_lwire_for_dir(Wire::Direction dir) { return out_lwire_for_dir(dir, bel.start); }

@@ -2,14 +2,14 @@
 // Created by nxmq0 on 1/3/2022.
 //
 
-#include "EFLGenerator.h"
-#include "EFTGenerator.h"
-#include "EFTIOGenerator.h"
-#include "GBUFCTRLGenerator.h"
-#include "GBUFGenerator.h"
-#include "IOGenerator.h"
-#include "MEMGenerator.h"
-#include "MULTGenerator.h"
+#include "belgenerators/EFLGenerator.h"
+#include "belgenerators/EFTGenerator.h"
+#include "belgenerators/EFTIOGenerator.h"
+#include "belgenerators/GBUFCTRLGenerator.h"
+#include "belgenerators/GBUFGenerator.h"
+#include "belgenerators/IOGenerator.h"
+#include "belgenerators/MEMGenerator.h"
+#include "belgenerators/MULTGenerator.h"
 #include "RoutingGenerator.h"
 #include "types.h"
 
@@ -51,7 +51,6 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 {
 	for (auto &wire : dev.wires)
 	{
-		if (wire->track > 47) continue;
 		switch (wire->dir)
 		{
 			case tritium::Wire::Direction::NORTH:
@@ -85,6 +84,7 @@ void gen_wbl(std::unordered_map<vec2, GridCell> &wbl, Device &dev)
 					wbl[vec2{i, wire->start.y}].xtracks[track] = wire.get();
 				}
 				break;
+				case Wire::Direction::UNDEF: break;
 		}
 	}
 }
@@ -188,19 +188,13 @@ int main(int argc, char **argv)
 	//	}
 	//	echosb.close();
 
-	std::cout << fmt::format(
-	    "Successfully generated routing, with {} wires and {} aliases.\n", dev.wires.size(), dev.pips.size());
-
 	parse_beldb(dev, wbl, fs::path{argc > 1 ? argv[1] : "../beldb"} / "oph_77x162_b3_d1.beldb");
-	rg.applySwitchCapacitances();
 	cista::file chipdb{"oph_77x162_b3_d1_C3.chipdb", "w+"};
 
 	std::cout << "awoo\n";
 
-	cista::serialize<cista::mode::WITH_VERSION>(chipdb, dev);
-	auto devfile = cista::mmap("oph_77x162_b3_d1_C3.chipdb", cista::mmap::protection::READ);
-	auto devload{cista::deserialize<tritium::Device>(devfile)};
-
+	cista::serialize<>(chipdb, dev);
+	auto devfile{cista::mmap("oph_77x162_b3_d1_C3.chipdb", cista::mmap::protection::READ)};
 	std::cout << "meow\n";
 
 	return 0;

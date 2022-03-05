@@ -10,6 +10,7 @@ namespace tritium
 	Bel &Device::make_bel(Bel::Type type, vec2 start)
 	{
 		auto &bel{*bels.emplace_back(data::make_unique<Bel>(Bel{}))};
+		bel.id = bels.size()-1;
 		bel.type  = type;
 		bel.start = start;
 		if (bel.type == Bel::Type::MEM || bel.type == Bel::Type::MULT)

@@ -2,9 +2,9 @@
 // Created by nxmq0 on 1/6/2022.
 //
 
-#include "EFTIOGenerator.h"
+#include "GBUFCTRLGenerator.h"
 
-void tritium::EFTIOGenerator::generate()
+void tritium::GBUFCTRLGenerator::generate()
 {
 	auto &i0{make_pin("I0", BelPin::PinType::INPUT)};
 	auto &i1{make_pin("I1", BelPin::PinType::INPUT)};
@@ -64,21 +64,25 @@ void tritium::EFTIOGenerator::generate()
 	auto &omuxnorth{make_pip("OMUXNORTH")};
 	link_termini(rtmux0, omuxnorth);
 	link_termini(rtmux1, omuxnorth);
+	link_lwires_to_omux(omuxnorth);
 	link_to_wire(omuxnorth, out_lwire_for_dir(Wire::Direction::NORTH));
 
 	auto &omuxsouth{make_pip("OMUXSOUTH")};
 	link_termini(rtmux0, omuxsouth);
 	link_termini(rtmux1, omuxsouth);
+	link_lwires_to_omux(omuxsouth);
 	link_to_wire(omuxsouth, out_lwire_for_dir(Wire::Direction::SOUTH));
 
 	auto &omuxwest{make_pip("OMUXWEST")};
 	link_termini(rtmux0, omuxwest);
 	link_termini(rtmux2, omuxwest);
+	link_lwires_to_omux(omuxwest);
 	link_to_wire(omuxwest, out_lwire_for_dir(Wire::Direction::WEST));
 
 	auto &omuxeast{make_pip("OMUXEAST")};
 	link_termini(rtmux0, omuxeast);
 	link_termini(rtmux2, omuxeast);
+	link_lwires_to_omux(omuxeast);
 	link_to_wire(omuxeast, out_lwire_for_dir(Wire::Direction::EAST));
 
 	auto &opadmux{make_pip("OPADMUX")};

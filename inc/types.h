@@ -30,7 +30,7 @@ namespace tritium
 		bool operator==(vec2 o) const { return x == o.x && y == o.y; }
 		[[nodiscard]] uint32_t dist(vec2 o) const;
 
-		size_t hash() const { return cista::hash_combine(x, y); }
+		[[nodiscard]] size_t hash() const { return cista::hash_combine(x, y); }
 	};
 
 #define TRITIUM_BEL_TYPE_MACRO(MACRO)                                                                                 \
@@ -53,11 +53,11 @@ namespace tritium
 			TRITIUM_BEL_TYPE_MACRO(TRITIUM_DECLARE_BEL_TYPE)
 #undef TRITIUM_DECLARE_BEL_TYPE
 		};
-
+		uint32_t id;
 		data::vector<uint32_t> name;
+		data::vector<data::unique_ptr<BelPin>> pins;
 		vec2 start;
 		vec2 end;
-		data::vector<data::unique_ptr<BelPin>> pins;
 		Type type;
 
 		[[nodiscard]] std::string_view typestr() const;
@@ -84,8 +84,7 @@ namespace tritium
 			SEMICOL  = 4,
 			GLOBAL   = 5,
 		};
-
-		data::vector<uint32_t> name;
+		uint32_t id;
 		Direction dir;
 		Type type;
 		vec2 start;
@@ -94,6 +93,7 @@ namespace tritium
 		float C;
 		uint32_t track;
 		uint32_t sbi;
+		data::vector<uint32_t> name;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sources;
 		data::vector<data::variant<data::ptr<BelPin>, data::ptr<Pip>>> sinks;
 		[[nodiscard]] bool isVertical() const;
@@ -106,10 +106,11 @@ namespace tritium
 
 	struct Pip
 	{
-		data::vector<uint32_t> name;
+		uint32_t id;
 		vec2 loc;
-		data::vector<data::ptr<Wire>> inputs;
-		data::vector<data::ptr<Wire>> outputs;
+		data::vector<uint32_t> name;
+		data::ptr<Wire> src;
+		data::ptr<Wire> dst;
 		bool isAlias;
 	};
 
@@ -123,7 +124,7 @@ namespace tritium
 			INOUT  = 3
 		};
 
-		data::vector<uint32_t> name;
+		uint32_t name;
 		vec2 loc;
 		data::ptr<Wire> wire;
 		PinType type;
