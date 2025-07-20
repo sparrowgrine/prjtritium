@@ -46,7 +46,7 @@ tritium::BelPin &tritium::BelCommon::make_pin(const data::string &name, BelPin::
 
 void tritium::BelCommon::link_wire_to(tritium::Wire &wire, tritium::Pip &tgt)
 {
-	tgt.inputs.emplace_back(&wire);
+	tgt.src.emplace_back(&wire);
 	wire.sinks.emplace_back(data::ptr<Pip>{&tgt});
 }
 
@@ -58,7 +58,7 @@ void tritium::BelCommon::link_wire_to(tritium::Wire &wire, tritium::BelPin &tgt)
 
 void tritium::BelCommon::link_to_wire(tritium::Pip &src, tritium::Wire &wire)
 {
-	src.outputs.emplace_back(&wire);
+	src.dst.emplace_back(&wire);
 	wire.sources.emplace_back(data::ptr<Pip>{&src});
 }
 
@@ -190,7 +190,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {2, 5, 8, 16, 23, 32, 39, 47})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -198,7 +198,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {4, 7, 11, 22, 33, 38})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -211,7 +211,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {4, 10, 15, 26, 29, 42, 45})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -219,7 +219,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {5, 6, 8, 19, 20, 35, 36})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -232,7 +232,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {0, 7, 13, 24, 31, 40})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -240,7 +240,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {1, 2, 9, 14, 25, 30, 41, 46})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -253,7 +253,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {1, 3, 6, 18, 21, 34, 37})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -261,7 +261,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {3, 12, 17, 27, 28, 43, 44})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -274,7 +274,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {10, 13})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -282,7 +282,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {36, 37, 48, 49, 50, 51})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				if (yidx < 48) w->C += 1.85e-15;
 			}
@@ -295,7 +295,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto xidx : {10, 13})
 			{
 				Wire *w = xgc.xtracks[xidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				w->C += 1.85e-15;
 			}
@@ -303,7 +303,7 @@ void tritium::BelCommon::link_wires_to_imux_by_index(tritium::Pip &imux, IMUXInd
 			for (auto yidx : {16, 17, 48, 49, 50, 51})
 			{
 				Wire *w = ygc.ytracks[yidx];
-				imux.inputs.emplace_back(w);
+				imux.src.emplace_back(w);
 				w->sinks.emplace_back(data::ptr<Pip>{&imux});
 				if (yidx < 48) w->C += 1.85e-15;
 			}
@@ -322,10 +322,10 @@ void tritium::BelCommon::link_lwires_to_omux(tritium::Pip &omux)
 	Wire &w10{*xgc.xtracks[10]};
 	Wire &s8{*ygc.ytracks[8]};
 	Wire &s9{*ygc.ytracks[9]};
-	omux.inputs.emplace_back(&w9);
-	omux.inputs.emplace_back(&w10);
-	omux.inputs.emplace_back(&s8);
-	omux.inputs.emplace_back(&s9);
+	omux.src.emplace_back(&w9);
+	omux.src.emplace_back(&w10);
+	omux.src.emplace_back(&s8);
+	omux.src.emplace_back(&s9);
 	w9.sinks.emplace_back(data::ptr<Pip>{&omux});
 	w10.sinks.emplace_back(data::ptr<Pip>{&omux});
 	s8.sinks.emplace_back(data::ptr<Pip>{&omux});

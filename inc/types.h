@@ -109,8 +109,8 @@ namespace tritium
 		uint32_t id;
 		vec2 loc;
 		data::vector<uint32_t> name;
-		data::ptr<Wire> src;
-		data::ptr<Wire> dst;
+		data::vector<data::ptr<Wire>> src;
+		data::vector<data::ptr<Wire>> dst;
 		bool isAlias;
 	};
 
