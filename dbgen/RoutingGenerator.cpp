@@ -592,7 +592,7 @@ namespace tritium
 							sb_pip.loc     = cloc;
 							sb_pip.name.push_back(dev.id("SBOX"));
 							sb_pip.name.push_back(dev.id(fmt::format("X{}Y{}", cloc.x, cloc.y)));
-							sb_pip.inputs.emplace_back(data::ptr<Wire>{wire});
+							sb_pip.src.emplace_back(data::ptr<Wire>{wire});
 							auto wloc          = wire->dir == WD::EAST ? wire->end : wire->end - 1_x;
 							auto &wgc          = wbl[wloc].xtracks;
 							uint32_t wireIdx   = pairIndices.offset((int)WD::WEST - (int)wire->dir);
@@ -602,7 +602,7 @@ namespace tritium
 								std::cerr << "ERR: WestNeighbor is nullptr!!!!\n";
 								std::terminate();
 							}
-							sb_pip.outputs.emplace_back(westNeighbor);
+							sb_pip.dst.emplace_back(westNeighbor);
 							auto eloc =
 							    (wire->end.x >= dev.dims.x - 1 && wire->dir == WD::WEST) ? wire->end : wire->end + 1_x;
 
@@ -614,7 +614,7 @@ namespace tritium
 								std::cerr << "ERR: EastNeighbor is nullptr!!!!\n";
 								std::terminate();
 							}
-							sb_pip.outputs.emplace_back(eastNeighbor);
+							sb_pip.dst.emplace_back(eastNeighbor);
 							auto sloc           = wire->dir == WD::EAST ? wire->end : wire->end - 1_x;
 							auto sgc            = wbl[sloc].ytracks;
 							wireIdx             = pairIndices.offset((int)WD::SOUTH - (int)wire->dir);
@@ -624,7 +624,7 @@ namespace tritium
 								std::cerr << "ERR: SouthNeighbor is nullptr!!!!\n";
 								std::terminate();
 							}
-							sb_pip.outputs.emplace_back(southNeighbor);
+							sb_pip.dst.emplace_back(southNeighbor);
 							auto nloc           = wire->dir == WD::EAST ? wire->end + 1_y : wire->end - 1_x + 1_y;
 							auto ngc            = wbl[nloc].ytracks;
 							wireIdx             = pairIndices.offset((int)WD::NORTH - (int)wire->dir);
@@ -634,7 +634,7 @@ namespace tritium
 								std::cerr << "ERR: NorthNeighbor is nullptr!!!!\n";
 								std::terminate();
 							}
-							sb_pip.outputs.emplace_back(northNeighbor);
+							sb_pip.dst.emplace_back(northNeighbor);
 						}
 					}
 				}
@@ -655,7 +655,7 @@ namespace tritium
 						sb_pip.loc     = cloc;
 						sb_pip.name.push_back(dev.id("SBOX"));
 						sb_pip.name.push_back(dev.id(fmt::format("X{}Y{}", cloc.x, cloc.y)));
-						sb_pip.inputs.emplace_back(data::ptr<Wire>{wire});
+						sb_pip.src.emplace_back(data::ptr<Wire>{wire});
 						auto wloc          = wire->dir == WD::SOUTH ? wire->end - 1_y : wire->end;
 						auto &wgc          = wbl[wloc].xtracks;
 						uint32_t wireIdx   = pairIndices.offset((int)WD::WEST - (int)wire->dir);
@@ -665,7 +665,7 @@ namespace tritium
 							std::cerr << "ERR: WestNeighbor is nullptr!!!!\n";
 							std::terminate();
 						}
-						sb_pip.outputs.emplace_back(westNeighbor);
+						sb_pip.dst.emplace_back(westNeighbor);
 						auto eloc          = wire->dir == WD::SOUTH ? wire->end - 1_y + 1_x : wire->end + 1_x;
 						auto &egc          = wbl[eloc].xtracks;
 						wireIdx            = pairIndices.offset((int)WD::EAST - (int)wire->dir);
@@ -675,7 +675,7 @@ namespace tritium
 							std::cerr << "ERR: EastNeighbor is nullptr!!!!\n";
 							std::terminate();
 						}
-						sb_pip.outputs.emplace_back(eastNeighbor);
+						sb_pip.dst.emplace_back(eastNeighbor);
 						auto sloc           = wire->dir == WD::SOUTH ? wire->end - 1_y : wire->end;
 						auto sgc            = wbl[sloc].ytracks;
 						wireIdx             = pairIndices.offset((int)WD::SOUTH - (int)wire->dir);
@@ -685,7 +685,7 @@ namespace tritium
 							std::cerr << "ERR: SouthNeighbor is nullptr!!!!\n";
 							std::terminate();
 						}
-						sb_pip.outputs.emplace_back(southNeighbor);
+						sb_pip.dst.emplace_back(southNeighbor);
 						auto nloc           = y == dev.dims.y - 1 ? wire->end : wire->end + 1_y;
 						auto ngc            = wbl[nloc].ytracks;
 						wireIdx             = pairIndices.offset((int)WD::NORTH - (int)wire->dir);
@@ -695,7 +695,7 @@ namespace tritium
 							std::cerr << "ERR: NorthNeighbor is nullptr!!!!\n";
 							std::terminate();
 						}
-						sb_pip.outputs.emplace_back(northNeighbor);
+						sb_pip.dst.emplace_back(northNeighbor);
 					}
 				}
 			}
